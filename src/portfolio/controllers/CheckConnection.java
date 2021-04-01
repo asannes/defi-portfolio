@@ -40,7 +40,7 @@ public class CheckConnection extends TimerTask {
                             }else{
                                 int currentBlockCount = Integer.parseInt(this.mainViewController.transactionController.getBlockCountRpc());
                                 int maxBlockCount = Integer.parseInt(this.mainViewController.transactionController.getBlockCount());
-                                double progress = Math.round((double)currentBlockCount*100.0/(double)maxBlockCount);
+                                double progress = Math.floor(((double)currentBlockCount*10000.0/(double)maxBlockCount))/100.0;
                                 if(SettingsController.getInstance().getPlatform().equals("mac")){
                                     try {
                                         FileWriter myWriter = new FileWriter(System.getProperty("user.dir") + "/PortfolioData/"+"update.portfolio");
