@@ -61,7 +61,7 @@ public class TransactionController {
     public TransactionController() {
         if (classSingleton) {
             classSingleton = false;
-            this.transactionList = getLocalTransactionList();
+            getLocalTransactionList();
             this.localBlockCount = getLocalBlockCount();
             getLocalBalanceList();
         }
@@ -138,7 +138,8 @@ public class TransactionController {
     public void clearPortfolioList() {
         this.portfolioList.clear();
     }
-    public void clearBalanceList(){
+
+    public void clearBalanceList() {
         this.balanceList.clear();
     }
 
@@ -237,14 +238,19 @@ public class TransactionController {
         return addressModel;
     }
 
-    public List<TransactionModel> getListAccountHistoryRpc(int depth) {
+    private ObservableList<TransactionModel> getOrCreateList() {
+        if (this.transactionList == null) this.transactionList = FXCollections.observableArrayList();
+        return this.transactionList;
+    }
+
+    public ObservableList<TransactionModel> getListAccountHistoryRpc(int depth) {
         JSONObject jsonObject = new JSONObject();
         List<TransactionModel> transactionList = new ArrayList<>();
-
         try {
             int blockCount = Integer.parseInt(getBlockCountRpc());
             int blockDepth = 10000;
             int restBlockCount = blockCount + blockDepth + 1;
+
             for (int i = 0; i < Math.ceil(depth / blockDepth); i = i + 1) {
                 if (this.settingsController.getPlatform().equals("mac")) {
                     try {
@@ -265,12 +271,16 @@ public class TransactionController {
                 JSONArray transactionJson = (JSONArray) jsonObject.get("result");
                 for (Object transaction : transactionJson) {
                     JSONObject transactionJ = (JSONObject) transaction;
+                    if (Integer.parseInt(transactionJ.get("blockHeight").toString()) > this.localBlockCount) {
+                        for (String amount : (transactionJ.get("amounts").toString().replace("[", "").replace("]", "").replace("\"", "")).split(",")) {
 
-                    for (String amount : (transactionJ.get("amounts").toString().replace("[", "").replace("]", "").replace("\"", "")).split(",")) {
-                        if (transactionJ.get("poolID") != null) {
-                            transactionList.add(new TransactionModel(Long.parseLong(transactionJ.get("blockTime").toString()), transactionJ.get("owner").toString(), transactionJ.get("type").toString(), amount, transactionJ.get("blockHash").toString(), Integer.parseInt(transactionJ.get("blockHeight").toString()), transactionJ.get("poolID").toString(), "", this));
-                        } else {
-                            transactionList.add(new TransactionModel(Long.parseLong(transactionJ.get("blockTime").toString()), transactionJ.get("owner").toString(), transactionJ.get("type").toString(), amount, transactionJ.get("blockHash").toString(), Integer.parseInt(transactionJ.get("blockHeight").toString()), "", transactionJ.get("txid").toString(), this));
+                            if (transactionJ.get("poolID") != null) {
+                                transactionList.add(new TransactionModel(Long.parseLong(transactionJ.get("blockTime").toString()), transactionJ.get("owner").toString(), transactionJ.get("type").toString(), amount, transactionJ.get("blockHash").toString(), Integer.parseInt(transactionJ.get("blockHeight").toString()), transactionJ.get("poolID").toString(), "", this));
+                            } else {
+                                transactionList.add(new TransactionModel(Long.parseLong(transactionJ.get("blockTime").toString()), transactionJ.get("owner").toString(), transactionJ.get("type").toString(), amount, transactionJ.get("blockHash").toString(), Integer.parseInt(transactionJ.get("blockHeight").toString()), "", transactionJ.get("txid").toString(), this));
+                            }
+                            if (transactionJ.get("type").toString().equals("Rewards") | transactionJ.get("type").toString().equals("Commission"))
+                                addToPortfolioModel(getOrCreateList().get(getOrCreateList().size() - 1));
                         }
                     }
                 }
@@ -294,11 +304,12 @@ public class TransactionController {
                     }
                 }
             }
+
+            return FXCollections.observableArrayList(transactionList);
         } catch (Exception e) {
             this.settingsController.logger.warning("Exception occured: " + e.toString());
         }
-
-        return transactionList;
+        return FXCollections.observableArrayList(transactionList);
     }
 
     public void updateJFrame() {
@@ -390,7 +401,7 @@ public class TransactionController {
 
     }
 
-    public  void getLocalBalanceList() {
+    public void getLocalBalanceList() {
 
         File strPortfolioData = new File(this.settingsController.PORTFOLIO_FILE_PATH);
 
@@ -418,15 +429,13 @@ public class TransactionController {
         }
     }
 
-    public ObservableList<TransactionModel> getLocalTransactionList() {
+    public void getLocalTransactionList() {
 
         File strPortfolioData = new File(this.strTransactionData);
-        List<TransactionModel> transactionList = new ArrayList<>();
 
         if (strPortfolioData.exists()) {
 
             try {
-
                 BufferedReader reader;
                 reader = new BufferedReader(new FileReader(
                         strPortfolioData));
@@ -435,11 +444,9 @@ public class TransactionController {
                 while (line != null) {
                     String[] transactionSplit = line.split(";");
                     TransactionModel transAction = new TransactionModel(Long.parseLong(transactionSplit[0]), transactionSplit[1], transactionSplit[2], transactionSplit[3], transactionSplit[4], Integer.parseInt(transactionSplit[5]), transactionSplit[6], transactionSplit[7], this);
-                    transactionList.add(transAction);
+                    getOrCreateList().add(transAction);
 
-                    //if (!(transAction.getTypeValue().equals("UtxosToAccount") | transAction.getTypeValue().equals("AccountToUtxos")))
-                    // addBalanceModel(transAction);
-                    if (transAction.getTypeValue().equals("Rewards") | transAction.getTypeValue().equals("Commission")) {
+                    if (transAction.typeProperty.getValue().equals("Rewards") | transAction.typeProperty.getValue().equals("Commission")) {
                         addToPortfolioModel(transAction);
                     }
 
@@ -447,11 +454,11 @@ public class TransactionController {
                 }
 
                 reader.close();
-                return FXCollections.observableArrayList(transactionList);
+
             } catch (IOException e) {
                 this.settingsController.logger.warning("Exception occured: " + e.toString());
             }
-        }        return FXCollections.observableArrayList(transactionList);
+        }
     }
 
     public String getTokenFromID(String id) {
@@ -475,7 +482,7 @@ public class TransactionController {
 
     public void addToPortfolioModel(TransactionModel transactionSplit) {
 
-        String pool = getPoolPairFromId(transactionSplit.getPoolIDValue());
+        String pool = getPoolPairFromId(transactionSplit.poolIDProperty.getValue());
 
         String[] intervallList = new String[]{"Daily", "Weekly", "Monthly", "Yearly"};
 
@@ -494,33 +501,32 @@ public class TransactionController {
             Double newCoinCommissions1 = 0.0;
             Double newCoinCommissions2 = 0.0;
 
-            if (transactionSplit.getTypeValue().equals("Rewards")) {
-                newFiatRewards = transactionSplit.getFiatValueValue();
-                newCoinRewards = transactionSplit.getCryptoValueValue();
+            if (transactionSplit.typeProperty.getValue().equals("Rewards")) {
+                newFiatRewards = transactionSplit.fiatValueProperty.getValue();
+                newCoinRewards = transactionSplit.cryptoValueProperty.getValue();
             }
 
-            if (transactionSplit.getTypeValue().equals("Commission")) {
-                if (pool.split("-")[1].equals(transactionSplit.getCryptoCurrencyValue())) {
-                    newFiatCommissions1 = transactionSplit.getFiatValueValue();
-                    newCoinCommissions1 = transactionSplit.getCryptoValueValue();
+            if (transactionSplit.typeProperty.getValue().equals("Commission")) {
+                if (pool.split("-")[1].equals(transactionSplit.cryptoCurrencyProperty.getValue())) {
+                    newFiatCommissions1 = transactionSplit.fiatValueProperty.getValue();
+                    newCoinCommissions1 = transactionSplit.cryptoValueProperty.getValue();
                 } else {
-                    newFiatCommissions2 = transactionSplit.getFiatValueValue();
-                    newCoinCommissions2 = transactionSplit.getCryptoValueValue();
+                    newFiatCommissions2 = transactionSplit.fiatValueProperty.getValue();
+                    newCoinCommissions2 = transactionSplit.cryptoValueProperty.getValue();
                 }
             }
 
-            if (portfolioList.get(keyValue).containsKey(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall))) {
+            if (portfolioList.get(keyValue).containsKey(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall))) {
 
-                Double oldCoinRewards = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall)).getCoinRewards1Value();
-                Double oldFiatRewards = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall)).getFiatRewards1Value();
-                Double oldCoinCommissions1 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall)).getCoinCommissions1Value();
-                Double oldFiatCommissions1 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall)).getFiatCommissions1Value();
-                Double oldCoinCommissions2 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall)).getCoinCommissions2Value();
-                Double oldFiatCommissions2 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall)).getFiatCommissions2Value();
-
-                portfolioList.get(keyValue).put(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall), new PortfolioModel(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall), oldFiatRewards + newFiatRewards, oldFiatCommissions1 + newFiatCommissions1, oldFiatCommissions2 + newFiatCommissions2, oldCoinRewards + newCoinRewards, oldCoinCommissions1 + newCoinCommissions1, oldCoinCommissions2 + newCoinCommissions2, pool, intervall));
+                Double oldCoinRewards = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall)).getCoinRewards1Value();
+                Double oldFiatRewards = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall)).getFiatRewards1Value();
+                Double oldCoinCommissions1 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall)).getCoinCommissions1Value();
+                Double oldFiatCommissions1 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall)).getFiatCommissions1Value();
+                Double oldCoinCommissions2 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall)).getCoinCommissions2Value();
+                Double oldFiatCommissions2 = portfolioList.get(keyValue).get(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall)).getFiatCommissions2Value();
+                portfolioList.get(keyValue).put(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall), new PortfolioModel(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall), oldFiatRewards + newFiatRewards, oldFiatCommissions1 + newFiatCommissions1, oldFiatCommissions2 + newFiatCommissions2, oldCoinRewards + newCoinRewards, oldCoinCommissions1 + newCoinCommissions1, oldCoinCommissions2 + newCoinCommissions2, pool, intervall));
             } else {
-                portfolioList.get(keyValue).put(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall), new PortfolioModel(getDate(Long.toString(transactionSplit.getBlockTimeValue()), intervall), newFiatRewards, newFiatCommissions1, newFiatCommissions2, newCoinRewards, newCoinCommissions1, newCoinCommissions2, pool, intervall));
+                portfolioList.get(keyValue).put(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall), new PortfolioModel(getDate(Long.toString(transactionSplit.blockTimeProperty.getValue()), intervall), newFiatRewards, newFiatCommissions1, newFiatCommissions2, newCoinRewards, newCoinCommissions1, newCoinCommissions2, pool, intervall));
             }
         }
     }
@@ -589,9 +595,9 @@ public class TransactionController {
         if (!new File(SettingsController.getInstance().DEFI_PORTFOLIO_HOME + "/transactionData.portfolio").exists()) {
             return 0;
         }
-        if (transactionList.size() > 0) {
+        if (getOrCreateList().size() > 0) {
 
-            return transactionList.get(transactionList.size() - 1).getBlockHeightValue();
+            return getOrCreateList().get(getOrCreateList().size() - 1).blockHeightProperty.getValue();
         } else {
             return 0;
         }
@@ -603,15 +609,9 @@ public class TransactionController {
         List<TransactionModel> updateTransactionList = new ArrayList<>();
         int counter = 0;
         for (int i = transactionListNew.size() - 1; i >= 0; i--) {
-            if (transactionListNew.get(i).getBlockHeightValue() > this.localBlockCount) {
+            if (transactionListNew.get(i).blockHeightProperty.getValue() > this.localBlockCount) {
                 this.transactionList.add(transactionListNew.get(i));
                 updateTransactionList.add(transactionListNew.get(i));
-                //if (!transactionListNew.get(i).getTypeValue().equals("UtxosToAccount") | !transactionListNew.get(i).getTypeValue().equals("AccountToUtxos"))
-                // addBalanceModel(transactionListNew.get(i));
-                //
-                if (transactionListNew.get(i).getTypeValue().equals("Rewards") | transactionListNew.get(i).getTypeValue().equals("Commission"))
-                    addToPortfolioModel(transactionListNew.get(i));
-
                 if (this.settingsController.getPlatform().equals("mac")) {
                     try {
                         if (counter > 1000) {
@@ -638,17 +638,17 @@ public class TransactionController {
                 for (TransactionModel transactionModel : updateTransactionList) {
                     counter++;
                     StringBuilder sb = new StringBuilder();
-                    sb.append(transactionModel.getBlockTimeValue()).append(exportSplitter);
-                    sb.append(transactionModel.getOwnerValue()).append(exportSplitter);
-                    sb.append(transactionModel.getTypeValue()).append(exportSplitter);
-                    sb.append(transactionModel.getAmountValue()).append(exportSplitter);
-                    sb.append(transactionModel.getBlockHashValue()).append(exportSplitter);
-                    sb.append(transactionModel.getBlockHeightValue()).append(exportSplitter);
-                    sb.append(transactionModel.getPoolIDValue()).append(exportSplitter);
-                    if (transactionModel.getTxIDValue().equals(""))
+                    sb.append(transactionModel.blockTimeProperty.getValue()).append(exportSplitter);
+                    sb.append(transactionModel.ownerProperty.getValue()).append(exportSplitter);
+                    sb.append(transactionModel.typeProperty.getValue()).append(exportSplitter);
+                    sb.append(transactionModel.amountProperty.getValue()).append(exportSplitter);
+                    sb.append(transactionModel.blockHashProperty.getValue()).append(exportSplitter);
+                    sb.append(transactionModel.blockHeightProperty.getValue()).append(exportSplitter);
+                    sb.append(transactionModel.poolIDProperty.getValue()).append(exportSplitter);
+                    if (transactionModel.txIDProperty.getValue().equals(""))
                         sb.append("\"\"");
                     else
-                        sb.append(transactionModel.getTxIDValue());
+                        sb.append(transactionModel.txIDProperty.getValue());
 
                     sb.append("\n");
                     if (this.settingsController.getPlatform().equals("mac")) {
@@ -671,18 +671,19 @@ public class TransactionController {
                 }
                 writer.close();
                 if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
-                this.localBlockCount = this.transactionList.get(this.transactionList.size() - 1).getBlockHeightValue();
+                this.localBlockCount = this.transactionList.get(this.transactionList.size() - 1).blockHeightProperty.getValue();
                 stopServer();
+                transactionListNew = null;
+                updateTransactionList = null;
                 return true;
             } catch (IOException e) {
                 this.settingsController.logger.warning("Exception occured: " + e.toString());
             }
-        }else{
-            this.showNoDataWindow();
         }
         if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
         stopServer();
         return false;
+
     }
 
     public String getPoolPairFromId(String poolID) {
@@ -798,9 +799,12 @@ public class TransactionController {
 
                 Double token1 = Math.sqrt(poolRatio * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]));
                 Double token2 = Math.sqrt(Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) / poolRatio);
-
-                balanceModelList.add(new BalanceModel(tokenName.split("-")[0], client.getPrice(CoinPriceController.getInstance().getCoinGeckoName(tokenName.split("-")[0]), SettingsController.getInstance().selectedFiatCurrency.getValue()).get(CoinPriceController.getInstance().getCoinGeckoName(tokenName.split("-")[0])).get(SettingsController.getInstance().selectedFiatCurrency.getValue().toLowerCase()) * token1, token1,
-                        tokenName.split("-")[1], coinPriceController.getPriceFromTimeStamp(tokenName.split("-")[1] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis()) * token2, token2, Double.parseDouble(jsonArray.get(i).toString().split("@")[0])));
+                try {
+                    balanceModelList.add(new BalanceModel(tokenName.split("-")[0], client.getPrice(CoinPriceController.getInstance().getCoinGeckoName(tokenName.split("-")[0]), SettingsController.getInstance().selectedFiatCurrency.getValue()).get(CoinPriceController.getInstance().getCoinGeckoName(tokenName.split("-")[0])).get(SettingsController.getInstance().selectedFiatCurrency.getValue().toLowerCase()) * token1, token1,
+                            tokenName.split("-")[1], coinPriceController.getPriceFromTimeStamp(tokenName.split("-")[1] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis()) * token2, token2, Double.parseDouble(jsonArray.get(i).toString().split("@")[0])));
+                } catch (Exception e) {
+                    this.settingsController.logger.warning("Exception occured: " + e.toString());
+                }
             } else {
                 if (!tokenName.equals("DFI")) dfiCoin = 0.0;
                 if (coinPriceController.getPriceFromTimeStamp(tokenName + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis()) > 0) {
@@ -841,7 +845,7 @@ public class TransactionController {
     public List<TransactionModel> getTransactionsInTime(List<TransactionModel> transactions, long startTime, long endTime) {
         List<TransactionModel> filteredTransactions = new ArrayList<>();
         for (int ilist = 1; ilist < transactions.size(); ilist++) {
-            if (transactions.get(ilist).getBlockTimeValue() >= startTime && transactions.get(ilist).getBlockTimeValue() <= endTime) {
+            if (transactions.get(ilist).blockTimeProperty.getValue() >= startTime && transactions.get(ilist).blockTimeProperty.getValue() <= endTime) {
                 filteredTransactions.add(transactions.get(ilist));
             }
         }
@@ -851,7 +855,7 @@ public class TransactionController {
     public List<TransactionModel> getTransactionsOfType(List<TransactionModel> transactions, String type) {
         List<TransactionModel> filteredTransactions = new ArrayList<>();
         for (int ilist = 1; ilist < transactions.size(); ilist++) {
-            if (transactions.get(ilist).getTypeValue().equals(type)) {
+            if (transactions.get(ilist).typeProperty.getValue().equals(type)) {
                 filteredTransactions.add(transactions.get(ilist));
             }
         }
@@ -861,7 +865,7 @@ public class TransactionController {
     public List<TransactionModel> getTransactionsOfOwner(List<TransactionModel> transactions, String owner) {
         List<TransactionModel> filteredTransactions = new ArrayList<>();
         for (int ilist = 1; ilist < transactions.size(); ilist++) {
-            if (transactions.get(ilist).getTypeValue().equals(owner)) {
+            if (transactions.get(ilist).typeProperty.getValue().equals(owner)) {
                 filteredTransactions.add(transactions.get(ilist));
             }
         }
@@ -871,7 +875,7 @@ public class TransactionController {
     public List<TransactionModel> getTransactionsBetweenBlocks(List<TransactionModel> transactions, long startBlock, long endBlock) {
         List<TransactionModel> filteredTransactions = new ArrayList<>();
         for (int ilist = 1; ilist < transactions.size(); ilist++) {
-            if (transactions.get(ilist).getBlockHeightValue() >= startBlock && transactions.get(ilist).getBlockHeightValue() <= endBlock) {
+            if (transactions.get(ilist).blockHeightProperty.getValue() >= startBlock && transactions.get(ilist).blockHeightProperty.getValue() <= endBlock) {
                 filteredTransactions.add(transactions.get(ilist));
             }
         }
@@ -896,8 +900,8 @@ public class TransactionController {
 
         for (TransactionModel transaction : transactions) {
 
-            if (!transaction.getTypeValue().equals("UtxosToAccount") & !transaction.getTypeValue().equals("AccountToUtxos")) {
-                String[] CoinsAndAmounts = splitCoinsAndAmounts(transaction.getAmountValue());
+            if (!transaction.typeProperty.getValue().equals("UtxosToAccount") & !transaction.typeProperty.getValue().equals("AccountToUtxos")) {
+                String[] CoinsAndAmounts = splitCoinsAndAmounts(transaction.amountProperty.getValue());
                 if (coinName.equals(CoinsAndAmounts[1])) {
                     amountCoin += Double.parseDouble(CoinsAndAmounts[0]);
                 }

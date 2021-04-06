@@ -35,9 +35,28 @@
     -fx-border-color: #373e43; -fx-border-width: 1px 1px 1px 0px
 }
 
+#dashboard {
+    -fx-font-alignment: center;
+    -fx-font-size: 18;
+    -fx-border-color: #373e43;
+    -fx-border-width: 1px;
+}
+
+#dashboard:hover{
+    -fx-font-alignment: center;
+    -fx-border-color: #FF00AF;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: derive(#373e43, 35%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 0em;
+    -fx-pref-width: 10px;
+}
+
 .hyperlink {
         -fx-underline: true;
-   -fx-text-fill: white;
+        -fx-text-fill: white;
     }
 
 .table-row-cell:selected .table-cell .hyperlink:hover {

@@ -64,5 +64,9 @@
   "DataSourceActiveWallet": "Aktive wallets",
   "DataSourceAllWallets": "Alle wallets",
   "Token": "Token",
-  "InfoNoData": "Daten konnten nicht geladen werden. \nWeitere Informationen im Wiki"
+  "InfoNoData": "Daten konnten nicht geladen werden. \nWeitere Informationen im Wiki",
+  "TotalYield": "Gesamtrendite",
+  "TotalYieldRewards": "Belohnungsrendite",
+  "TotalYieldCommissions": "Kommissionsrendite",
+  "TotalAmount": "Gesamtbetrag"
 }

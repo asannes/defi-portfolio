@@ -2,14 +2,10 @@ package portfolio.controllers;
 
 import com.litesoftwares.coingecko.CoinGeckoApiClient;
 import com.litesoftwares.coingecko.impl.CoinGeckoApiClientImpl;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import portfolio.models.CoinPriceModel;
-
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 
 public class CoinPriceController {
