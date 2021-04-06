@@ -679,6 +679,8 @@ public class TransactionController {
             } catch (IOException e) {
                 this.settingsController.logger.warning("Exception occured: " + e.toString());
             }
+        }else{
+            this.showNoDataWindow();
         }
         if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
         stopServer();
