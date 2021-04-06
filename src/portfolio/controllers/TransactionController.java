@@ -788,6 +788,8 @@ public class TransactionController {
         List<BalanceModel> balanceModelList = new ArrayList<>();
         JSONArray jsonArray = getTokenBalances();
         CoinGeckoApiClient client = new CoinGeckoApiClientImpl();
+        try{
+
         Double dfiCoin = Double.parseDouble(getBalance());
         for (int i = 0; i < jsonArray.size(); i++) {
             String tokenName = getPoolPairFromId(jsonArray.get(i).toString().split("@")[1]);
@@ -837,8 +839,11 @@ public class TransactionController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             this.balanceList = balanceModelList;
+        }
+
+        }catch(Exception e){
+            this.settingsController.logger.warning("Exception occured: " +e.toString());
         }
     }
 

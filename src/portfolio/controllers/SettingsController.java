@@ -22,7 +22,7 @@ import java.util.logging.SimpleFormatter;
 
 
 public class SettingsController {
-    public String Version = "V1.4";
+    public String Version = "V1.4.1";
 
     private static SettingsController OBJ = null;
 
