@@ -53,7 +53,7 @@
   "SaveData": "Datenspeicherung...",
   "UpdateData": "Daten Update ",
   "TransactionHash": "Transaktions Hash",
-  "ConnectNode": "Verbinden mit Node... (DeFi Wallet muss geschlossen sein)",
+  "ConnectNode": "<html><body>Verbinden mit Node... <br>DeFi Wallet muss geschlossen sein</body></html>",
   "UpdateTooltip": "Klick auf \"Verbinden mit Node\" (DeFi App muss geschlossen sein)",
   "LaunchDefid": "Starte \"Node\" beim Tool Start",
   "SyncData": "Synchronisiere Daten: ",
@@ -63,5 +63,10 @@
   "DataSourceLabel": "Daten Quelle",
   "DataSourceActiveWallet": "Aktive wallets",
   "DataSourceAllWallets": "Alle wallets",
-  "Token": "Token"
+  "Token": "Token",
+  "InfoNoData": "Daten konnten nicht geladen werden. \nWeitere Informationen im Wiki",
+  "TotalYield": "Gesamtrendite",
+  "TotalYieldRewards": "Belohnungsrendite",
+  "TotalYieldCommissions": "Kommissionsrendite",
+  "TotalAmount": "Gesamtbetrag"
 }

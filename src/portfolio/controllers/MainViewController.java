@@ -5,7 +5,6 @@ import javafx.animation.PauseTransition;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
@@ -21,7 +20,6 @@ import portfolio.models.TransactionModel;
 import portfolio.services.ExportService;
 import portfolio.views.MainView;
 
-import javax.xml.soap.Text;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -84,12 +82,12 @@ public class MainViewController {
                 (ov, t, t1) -> {
                     this.transactionController.getPortfolioList().clear();
                     for (TransactionModel transactionModel : this.transactionController.getTransactionList()) {
-                        if (!transactionModel.getCryptoCurrencyValue().contains("-")) {
-                            transactionModel.setFiatCurrency(t1);
-                            transactionModel.setFiatValue(transactionModel.getCryptoValueValue() * this.coinPriceController.getPriceFromTimeStamp(transactionModel.getCryptoCurrencyValue() + t1, transactionModel.getBlockTimeValue() * 1000L));
+                        if (!transactionModel.cryptoCurrencyProperty.getValue().contains("-")) {
+                            transactionModel.fiatCurrencyProperty.set(t1);
+                            transactionModel.fiatValueProperty.set(transactionModel.cryptoValueProperty.getValue() * this.coinPriceController.getPriceFromTimeStamp(transactionModel.cryptoCurrencyProperty.getValue() + t1, transactionModel.blockTimeProperty.getValue() * 1000L));
                         }
 
-                        if (transactionModel.getTypeValue().equals("Rewards") | transactionModel.getTypeValue().equals("Commission")) {
+                        if (transactionModel.typeProperty.getValue().equals("Rewards") | transactionModel.typeProperty.getValue().equals("Commission")) {
                             this.transactionController.addToPortfolioModel(transactionModel);
                         }
                     }
@@ -118,18 +116,18 @@ public class MainViewController {
             sb.append("\n");
         }
         for (TransactionModel transaction : list) {
-            sb.append(this.transactionController.convertTimeStampToString(transaction.getBlockTimeValue())).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(transaction.getTypeValue()).append(this.settingsController.selectedSeperator.getValue());
-            String[] CoinsAndAmounts = this.transactionController.splitCoinsAndAmounts(transaction.getAmountValue());
+            sb.append(this.transactionController.convertTimeStampToString(transaction.blockTimeProperty.getValue())).append(this.settingsController.selectedSeperator.getValue());
+            sb.append(transaction.typeProperty.getValue()).append(this.settingsController.selectedSeperator.getValue());
+            String[] CoinsAndAmounts = this.transactionController.splitCoinsAndAmounts(transaction.amountProperty.getValue());
             sb.append(String.format(localeDecimal, "%.8f", Double.parseDouble(CoinsAndAmounts[0]))).append(this.settingsController.selectedSeperator.getValue());
             sb.append(CoinsAndAmounts[1]).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(String.format(localeDecimal, "%.8f", transaction.getFiatValueValue())).append(this.settingsController.selectedSeperator.getValue());
+            sb.append(String.format(localeDecimal, "%.8f", transaction.fiatValueProperty.getValue())).append(this.settingsController.selectedSeperator.getValue());
             sb.append(this.settingsController.selectedFiatCurrency.getValue()).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(transaction.getPoolIDValue()).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(transaction.getBlockHeightValue()).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(transaction.getBlockHashValue()).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(transaction.getOwnerValue()).append(this.settingsController.selectedSeperator.getValue());
-            sb.append(transaction.getTxIDValue());
+            sb.append(transaction.poolIDProperty.getValue()).append(this.settingsController.selectedSeperator.getValue());
+            sb.append(transaction.blockHeightProperty.getValue()).append(this.settingsController.selectedSeperator.getValue());
+            sb.append(transaction.blockHashProperty.getValue()).append(this.settingsController.selectedSeperator.getValue());
+            sb.append(transaction.ownerProperty.getValue()).append(this.settingsController.selectedSeperator.getValue());
+            sb.append(transaction.txIDProperty.getValue());
             sb.append("\n");
         }
         StringSelection stringSelection = new StringSelection(sb.toString());
@@ -147,7 +145,7 @@ public class MainViewController {
         if (withHeaders) {
             switch (this.mainView.tabPane.getSelectionModel().getSelectedItem().getText()) {
                 case "Portfolio":
-                    sb.append((this.mainView.plotTable.getColumns().get(0).getText() + "," + this.mainView.plotTable.getColumns().get(2).getText() + "," + this.mainView.plotTable.getColumns().get(9).getText() ).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((this.mainView.plotTable.getColumns().get(0).getText() + "," + this.mainView.plotTable.getColumns().get(2).getText() + "," + this.mainView.plotTable.getColumns().get(9).getText()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
                     break;
                 case "Overview":
                 case "Übersicht":
@@ -219,7 +217,7 @@ public class MainViewController {
     public boolean updateTransactionData() {
 
         transactionController.getCoinAndTokenBalances();
-       if (new File(this.settingsController.DEFI_PORTFOLIO_HOME + this.settingsController.strTransactionData).exists()) {
+        if (new File(this.settingsController.DEFI_PORTFOLIO_HOME + this.settingsController.strTransactionData).exists()) {
             int depth = Integer.parseInt(this.transactionController.getBlockCount()) - this.transactionController.getLocalBlockCount();
             return transactionController.updateTransactionData(depth);
         } else {
@@ -326,28 +324,52 @@ public class MainViewController {
             localeDecimal = Locale.US;
         }
         for (BalanceModel balanceModel : this.transactionController.getBalanceList()) {
-            //PoolPairModel(String blockTime, double fiatValue, double cryptoValue1, double cryptoValue2, String poolPair,double cryptoValueFiat1, double cryptoValueFiat2,double cryptoCommission2Overview,double cryptoCommission2FiatOverview,String balanceFiat)
-
 
             if (balanceModel.getToken2NameValue().equals("-")) {
                 pieChartData.add(new PieChart.Data(balanceModel.getToken1NameValue(), balanceModel.getFiat1Value()));
-                this.poolPairModelList.add(new PoolPairModel(balanceModel.getToken1NameValue(), 0.0, 0.0, 0.0, String.format(localeDecimal,"%1.8f", balanceModel.getCrypto1Value()), 0.0, 0.0, 0.0, 0.0, String.format(localeDecimal,"%1.2f", balanceModel.getFiat1Value())));
+                this.poolPairModelList.add(new PoolPairModel(balanceModel.getToken1NameValue(), 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.8f", balanceModel.getCrypto1Value()), 0.0, 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.2f", balanceModel.getFiat1Value())));
                 calculatedPortfolio += balanceModel.getFiat1Value() + balanceModel.getFiat2Value();
 
             } else {
                 pieChartData2.add(new PieChart.Data(balanceModel.getToken1NameValue() + "-" + balanceModel.getToken2NameValue(), balanceModel.getFiat1Value() + balanceModel.getFiat2Value()));
                 this.poolPairModelList.add(new PoolPairModel(balanceModel.getToken1NameValue() + "-" + balanceModel.getToken2NameValue(), 0.0, 0.0, 0.0,
-                        String.format(localeDecimal,"%1.8f", balanceModel.getShareValue()) + " (" + String.format(localeDecimal,"%1.8f", balanceModel.getCrypto1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal,"%1.8f", balanceModel.getCrypto2Value()) + balanceModel.getToken2NameValue()+")",
-                        0.0, 0.0, 0.0, 0.0, String.format(localeDecimal,"%1.2f", balanceModel.getFiat1Value() + balanceModel.getFiat1Value()) + " (" + String.format(localeDecimal,"%1.2f", balanceModel.getFiat1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal,"%1.2f", balanceModel.getFiat2Value()) + balanceModel.getToken2NameValue()+")"));
-
+                        String.format(localeDecimal, "%1.8f", balanceModel.getShareValue()) + " (" + String.format(localeDecimal, "%1.8f", balanceModel.getCrypto1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal, "%1.8f", balanceModel.getCrypto2Value()) + balanceModel.getToken2NameValue() + ")",
+                        0.0, 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.2f", balanceModel.getFiat1Value() + balanceModel.getFiat1Value()) + " (" + String.format(localeDecimal, "%1.2f", balanceModel.getFiat1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal, "%1.2f", balanceModel.getFiat2Value()) + balanceModel.getToken2NameValue() + ")"));
                 calculatedPortfolio2 += balanceModel.getFiat1Value() + balanceModel.getFiat2Value();
             }
 
         }
 
-        this.mainView.plotPortfolio1.setTitle("Tokens:\n"+String.format(localeDecimal,"%1.2f", calculatedPortfolio) + " " + SettingsController.getInstance().selectedFiatCurrency.getValue());
+        double totalYield = 0;
+        double totalYieldRewards=0;
+        double totalYieldCommissions=0;
 
-        this.mainView.plotPortfolio11.setTitle("LM Tokens:\n"+String.format(localeDecimal,"%1.2f", calculatedPortfolio2) + " " + SettingsController.getInstance().selectedFiatCurrency.getValue());
+        for (String poolPair : this.settingsController.cryptoCurrencies) {
+
+            double poolPair1Price = CoinPriceController.getInstance().getPriceFromTimeStamp(poolPair.split("-")[1]+this.settingsController.selectedFiatCurrency.getValue(),System.currentTimeMillis());
+            double poolPair2Price =CoinPriceController.getInstance().getPriceFromTimeStamp(poolPair.split("-")[0]+this.settingsController.selectedFiatCurrency.getValue(),System.currentTimeMillis());
+
+            if (this.transactionController.getPortfolioList().containsKey(poolPair + "-" + this.settingsController.selectedIntervallInt)) {
+               for(HashMap.Entry<String, PortfolioModel> entry : this.transactionController.getPortfolioList().get(poolPair + "-" + this.settingsController.selectedIntervallInt).entrySet()){
+                   totalYield += (entry.getValue().getCoinCommissions1Value()*poolPair1Price)+(entry.getValue().getCoinCommissions2Value()*poolPair2Price)+(entry.getValue().getCoinRewards1Value()*poolPair1Price);
+                   totalYieldRewards += entry.getValue().getCoinRewards1Value()*poolPair1Price;
+                   totalYieldCommissions += (entry.getValue().getCoinCommissions1Value()*poolPair1Price)+(entry.getValue().getCoinCommissions2Value()*poolPair2Price);
+               }
+            }
+        }
+
+        String currency="\u20ac";
+        if(SettingsController.getInstance().selectedFiatCurrency.getValue().equals("USD")){
+            currency = "\u0024";
+        }else if(SettingsController.getInstance().selectedFiatCurrency.getValue().equals("CHF")){
+            currency = "CHF";
+        }
+        this.settingsController.tokenYield.set(this.settingsController.translationList.getValue().get("TotalYield")+":\n"+String.format(localeDecimal, "%1.2f", totalYield)+currency);
+        this.settingsController.tokenYieldRewards.set(this.settingsController.translationList.getValue().get("TotalYieldRewards")+":\n"+String.format(localeDecimal, "%1.2f", totalYieldRewards)+currency);
+        this.settingsController.tokenYieldCommissions.set(this.settingsController.translationList.getValue().get("TotalYieldCommissions")+":\n"+String.format(localeDecimal, "%1.2f", totalYieldCommissions)+currency);
+        this.settingsController.tokenAmount.set(this.settingsController.translationList.getValue().get("TotalAmount")+":\n"+String.format(localeDecimal, "%1.2f", calculatedPortfolio+calculatedPortfolio2)+currency);
+        this.settingsController.tokenBalance.set("Token:\n" + String.format(localeDecimal, "%1.2f", calculatedPortfolio)+currency);
+        this.settingsController.tokenBalanceLM.set("LM Token:\n" + String.format(localeDecimal, "%1.2f", calculatedPortfolio2)+currency);
         this.mainView.plotPortfolio1.setData(pieChartData);
         this.mainView.plotPortfolio11.setData(pieChartData2);
 
@@ -363,6 +385,7 @@ public class MainViewController {
             if (n instanceof Legend) {
                 for (Legend.LegendItem legendItem : ((Legend) n).getItems()) {
                     legendItem.getSymbol().setStyle("-fx-background-color: " + getColor(legendItem.getText()) + ";");
+
                 }
             }
         }
@@ -620,7 +643,6 @@ public class MainViewController {
                 for (HashMap.Entry<String, PortfolioModel> entry : this.transactionController.getPortfolioList().get(this.settingsController.selectedCoin.getValue() + "-" + this.settingsController.selectedIntervallInt).entrySet()) {
                     if (entry.getValue().getDateValue().compareTo(this.transactionController.convertDateToIntervall(this.settingsController.dateFrom.getValue().toString(), this.settingsController.selectedIntervallInt)) >= 0 &&
                             entry.getValue().getDateValue().compareTo(this.transactionController.convertDateToIntervall(this.settingsController.dateTo.getValue().toString(), this.settingsController.selectedIntervallInt)) <= 0) {
-
                         if (this.settingsController.selectedPlotCurrency.getValue().equals("Coin")) {
                             cumulatedCommissions1CoinValue = cumulatedCommissions1CoinValue + entry.getValue().getCoinCommissions1Value();
                             cumulatedCommissions2CoinValue = cumulatedCommissions2CoinValue + entry.getValue().getCoinCommissions2Value();
@@ -668,8 +690,6 @@ public class MainViewController {
                 }
 
             }
-
-
             this.poolPairModelList.sort(Comparator.comparing(PoolPairModel::getBlockTimeValue));
             this.poolPairList.clear();
             this.poolPairList.addAll(this.poolPairModelList);
@@ -760,13 +780,4 @@ public class MainViewController {
             }
         }
     }
-
-    public void openBlockChainExplorer(TransactionModel model) {
-        try {
-            Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/block/" + model.getBlockHashValue()).toURI());
-        } catch (Exception e) {
-            this.settingsController.logger.warning("Exception occured: " + e.toString());
-        }
-    }
-
 }

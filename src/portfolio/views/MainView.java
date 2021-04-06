@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -161,6 +162,7 @@ public class MainView implements Initializable {
     public Tab Portfolio;
     public Label UpdateText;
     public PieChart plotPortfolio11;
+    public Label fieldTotal,fieldTotalYield,fieldTotalYieldRewards,fieldTotalYieldCommissions, tokenLabel,tokenLabelLM;
     MainViewController mainViewController = MainViewController.getInstance();
 
     public MainView() {
@@ -217,7 +219,7 @@ public class MainView implements Initializable {
             crypto1Column.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1]);
             crypto1FiatColumn.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1] + " (" + mainViewController.settingsController.selectedFiatCurrency.getValue() + ")");
             crypto2Column.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[0]);
-            crypto2FiatColumn.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1] + " (" + mainViewController.settingsController.selectedFiatCurrency.getValue() + ")");
+            crypto2FiatColumn.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[0] + " (" + mainViewController.settingsController.selectedFiatCurrency.getValue() + ")");
 
             crypto1Column.setVisible(true);
             crypto1FiatColumn.setVisible(true);
@@ -401,8 +403,6 @@ public class MainView implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         this.mainViewController.mainView = this;
-        this.anchorPanelRawData.toFront();
-        this.btnRawData.fire();
         updateLanguage();
 
         coinImageRewards.setImage(new Image(new File(System.getProperty("user.dir") + "/defi-portfolio/src/icons/" + mainViewController.settingsController.selectedCoin.getValue().split("-")[0].toLowerCase() + "-icon.png").toURI().toString()));
@@ -413,11 +413,18 @@ public class MainView implements Initializable {
         final Delta dragDelta = new Delta();
 
         this.btnConnect.disableProperty().bind(this.mainViewController.bDataBase.not());
+        this.tokenLabel.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenBalance);
+        this.tokenLabelLM.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenBalanceLM);
 
+        this.fieldTotal.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenAmount);
+        this.fieldTotalYield.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenYield);
+        this.fieldTotalYieldRewards.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenYieldRewards);
+        this.fieldTotalYieldCommissions.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenYieldCommissions);
         this.strCurrentBlockLocally.textProperty().bindBidirectional(this.mainViewController.strCurrentBlockLocally);
         this.strCurrentBlockOnBlockchain.textProperty().bindBidirectional(this.mainViewController.strCurrentBlockOnBlockchain);
         this.strLastUpdate.textProperty().bindBidirectional(this.mainViewController.settingsController.lastUpdate);
         this.btnUpdateDatabase.setOnAction(e -> {
+            this.mainViewController.settingsController.selectedLaunchSync = true;
             this.mainViewController.transactionController.startServer();
             this.mainViewController.settingsController.runCheckTimer = true;
             Timer checkTimer = new Timer("");
@@ -439,7 +446,7 @@ public class MainView implements Initializable {
                 this.mainViewController.transactionController.updateJFrame();
                 this.mainViewController.transactionController.jl.setText(this.mainViewController.settingsController.translationList.getValue().get("ConnectNode").toString());
             }
-            checkTimer.scheduleAtFixedRate(new CheckConnection(this.mainViewController), 0, 10000);
+            checkTimer.scheduleAtFixedRate(new CheckConnection(this.mainViewController), 0, 30000);
         });
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) ->
@@ -642,7 +649,6 @@ public class MainView implements Initializable {
                 bindBidirectional(this.mainViewController.settingsController.dateTo);
         this.dateToCom.setValue(LocalDate.now());
         this.dateToCom.setDayCellFactory(picker -> new
-
                 DateCell() {
 
                     public void updateItem(LocalDate date, boolean empty) {
@@ -719,45 +725,45 @@ public class MainView implements Initializable {
                 getBalanceFiat());
         ownerColumn.setCellValueFactory(param -> param.getValue().
 
-                getOwner());
+                ownerProperty);
         blockTimeColumn.setCellValueFactory(param -> param.getValue().
 
-                getBlockTime().
+                blockTimeProperty.
 
                 asObject());
         typeColumn.setCellValueFactory(param -> param.getValue().
 
-                getType());
+                typeProperty);
         cryptoCurrencyColumn.setCellValueFactory(param -> param.getValue().
 
-                getCrypto());
+                cryptoCurrencyProperty);
         cryptoValueColumn.setCellValueFactory(param -> param.getValue().
 
-                getCryptoValue().
+                cryptoValueProperty.
 
                 asObject());
         blockHashColumn.setCellValueFactory(param -> param.getValue().
 
-                getBlockHash());
+                blockHashProperty);
         blockHeightColumn.setCellValueFactory(param -> param.getValue().
 
-                getBlockHeight().
+                blockHeightProperty.
 
                 asObject());
         poolIDColumn.setCellValueFactory(param -> param.getValue().
 
-                getPoolID());
+                poolIDProperty);
         fiatValueColumn.setCellValueFactory(param -> param.getValue().
 
-                getFiat().
+                fiatValueProperty.
 
                 asObject());
         fiatCurrencyColumn.setCellValueFactory(param -> param.getValue().
 
-                getFiatCurrency());
+                fiatCurrencyProperty);
         transactionColumn.setCellValueFactory(param -> param.getValue().
 
-                getTxID());
+                txIDProperty);
 
 
         Callback<TableColumn<TransactionModel, String>, TableCell<TransactionModel, String>> cellFactory0
@@ -778,12 +784,12 @@ public class MainView implements Initializable {
                             if (mainViewController.settingsController.getPlatform().equals("linux")) {
                                 // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
                                 if (Runtime.getRuntime().exec(new String[]{"which", "xdg-open"}).getInputStream().read() != -1) {
-                                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.getBlockHashValue()});
+                                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.blockHashProperty.getValue()});
                                 } else {
                                     System.out.println("xdg-open is not supported!");
                                 }
                             } else {
-                                Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.getBlockHashValue()).toURI());
+                                Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.blockHashProperty.getValue()).toURI());
                             }
                         } catch (IOException | URISyntaxException e) {
                             SettingsController.getInstance().logger.warning("Exception occured: " + e.toString());
@@ -815,12 +821,12 @@ public class MainView implements Initializable {
                             if (mainViewController.settingsController.getPlatform().equals("linux")) {
                                 // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
                                 if (Runtime.getRuntime().exec(new String[]{"which", "xdg-open"}).getInputStream().read() != -1) {
-                                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/address/" + tempParam.getOwnerValue()});
+                                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/address/" + tempParam.ownerProperty.getValue()});
                                 } else {
                                     System.out.println("xdg-open is not supported!");
                                 }
                             } else {
-                                Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/address/" + tempParam.getOwnerValue()).toURI());
+                                Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/address/" + tempParam.ownerProperty.getValue()).toURI());
                             }
                         } catch (IOException | URISyntaxException e) {
                             SettingsController.getInstance().logger.warning("Exception occured: " + e.toString());
@@ -851,12 +857,12 @@ public class MainView implements Initializable {
                             if (mainViewController.settingsController.getPlatform().equals("linux")) {
                                 // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
                                 if (Runtime.getRuntime().exec(new String[]{"which", "xdg-open"}).getInputStream().read() != -1) {
-                                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.getBlockHeightValue()});
+                                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.blockHeightProperty.getValue()});
                                 } else {
                                     System.out.println("xdg-open is not supported!");
                                 }
                             } else {
-                                Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.getBlockHeightValue()).toURI());
+                                Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/block/" + tempParam.blockHeightProperty.getValue()).toURI());
                             }
                         } catch (IOException | URISyntaxException e) {
                             SettingsController.getInstance().logger.warning("Exception occured: " + e.toString());
@@ -883,7 +889,7 @@ public class MainView implements Initializable {
                 } else {
                     TransactionModel tempParam = rawDataTable.getItems().get(getIndex());
 
-                    if (tempParam.getTxIDValue().equals("\"\"")) {
+                    if (tempParam.txIDProperty.getValue().equals("\"\"")) {
                         setText("-");
                         setGraphic(null);
                     } else {
@@ -894,12 +900,12 @@ public class MainView implements Initializable {
                                 if (mainViewController.settingsController.getPlatform().equals("linux")) {
                                     // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
                                     if (Runtime.getRuntime().exec(new String[]{"which", "xdg-open"}).getInputStream().read() != -1) {
-                                        Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/tx/" + tempParam.getTxIDValue()});
+                                        Runtime.getRuntime().exec(new String[]{"xdg-open", "https://mainnet.defichain.io/#/DFI/mainnet/tx/" + tempParam.txIDProperty.getValue()});
                                     } else {
                                         System.out.println("xdg-open is not supported!");
                                     }
                                 } else {
-                                    Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/tx/" + tempParam.getTxIDValue()).toURI());
+                                    Desktop.getDesktop().browse(new URL("https://mainnet.defichain.io/#/DFI/mainnet/tx/" + tempParam.txIDProperty.getValue()).toURI());
                                 }
                             } catch (IOException | URISyntaxException e) {
                                 SettingsController.getInstance().logger.warning("Exception occured: " + e.toString());
@@ -1139,6 +1145,7 @@ public class MainView implements Initializable {
             }
         });
         this.init = false;
+        this.btnAnalyse.fire();
     }
 
     private void initializeTableViewContextMenu() {

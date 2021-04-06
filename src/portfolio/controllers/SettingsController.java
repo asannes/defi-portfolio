@@ -22,7 +22,7 @@ import java.util.logging.SimpleFormatter;
 
 
 public class SettingsController {
-    public String Version = "V1.4";
+    public String Version = "V1.4.1";
 
     private static SettingsController OBJ = null;
 
@@ -43,7 +43,13 @@ public class SettingsController {
     public StringProperty selectedPlotCurrency = new SimpleStringProperty("Coin");
     public StringProperty selectedPlotType = new SimpleStringProperty();
     public StringProperty selectedIntervall = new SimpleStringProperty();
-    public ObjectProperty<LocalDate> dateFrom = new SimpleObjectProperty();
+    public StringProperty tokenBalance = new SimpleStringProperty();
+    public StringProperty tokenBalanceLM = new SimpleStringProperty();
+    public StringProperty tokenAmount = new SimpleStringProperty();
+    public StringProperty tokenYield = new SimpleStringProperty();
+    public StringProperty tokenYieldRewards = new SimpleStringProperty();
+    public StringProperty tokenYieldCommissions = new SimpleStringProperty();
+    public ObjectProperty<LocalDate> dateFrom = new SimpleObjectProperty("2020-11-30");
     public ObjectProperty<LocalDate> dateTo = new SimpleObjectProperty();
     public ObjectProperty<JSONObject> translationList = new SimpleObjectProperty();
     public String selectedIntervallInt = "Daily";

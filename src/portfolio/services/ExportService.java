@@ -49,17 +49,17 @@ public class ExportService {
 
         for (TransactionModel transaction : transactions) {
             sb = new StringBuilder();
-            sb.append(this.mainViewController.transactionController.convertTimeStampToString(transaction.getBlockTimeValue())).append(exportSplitter);
-            sb.append(transaction.getTypeValue()).append(exportSplitter);
-            sb.append(String.format(localeDecimal, "%.8f", transaction.getCryptoValueValue())).append(exportSplitter);
-            sb.append(transaction.getCryptoCurrencyValue()).append(exportSplitter);
-            sb.append(String.format(localeDecimal, "%.8f", transaction.getFiatValueValue())).append(exportSplitter);
-            sb.append(transaction.getFiatCurrencyValue()).append(exportSplitter);
-            sb.append(transaction.getPoolIDValue()).append(exportSplitter);
-            sb.append(transaction.getBlockHeightValue()).append(exportSplitter);
-            sb.append(transaction.getBlockHashValue()).append(exportSplitter);
-            sb.append(transaction.getOwnerValue()).append(exportSplitter);
-            sb.append(transaction.getTxIDValue());
+            sb.append(this.mainViewController.transactionController.convertTimeStampToString(transaction.blockTimeProperty.getValue())).append(exportSplitter);
+            sb.append(transaction.typeProperty.getValue()).append(exportSplitter);
+            sb.append(String.format(localeDecimal, "%.8f", transaction.cryptoValueProperty.getValue())).append(exportSplitter);
+            sb.append(transaction.cryptoCurrencyProperty.getValue()).append(exportSplitter);
+            sb.append(String.format(localeDecimal, "%.8f", transaction.fiatValueProperty.getValue())).append(exportSplitter);
+            sb.append(transaction.fiatCurrencyProperty.getValue()).append(exportSplitter);
+            sb.append(transaction.poolIDProperty.getValue()).append(exportSplitter);
+            sb.append(transaction.blockHeightProperty.getValue()).append(exportSplitter);
+            sb.append(transaction.blockHashProperty.getValue()).append(exportSplitter);
+            sb.append(transaction.ownerProperty.getValue()).append(exportSplitter);
+            sb.append(transaction.txIDProperty.getValue());
             sb.append("\n");
             writer.write(sb.toString());
             sb = null;
@@ -94,33 +94,33 @@ public class ExportService {
         TreeMap<String, TransactionModel> exportList = new TreeMap<>();
         String oldDate = "";
         for (TransactionModel transaction : transactions) {
-            String newDate = this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(transaction.getBlockTimeValue());
+            String newDate = this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(transaction.blockTimeProperty.getValue());
 
-            if(transaction.getTypeValue().equals("Commission") || transaction.getTypeValue().equals("Rewards")){
+            if(transaction.typeProperty.getValue().equals("Commission") || transaction.typeProperty.getValue().equals("Rewards")){
 
             if ((oldDate.equals("") || oldDate.equals(newDate)) ) {
-                String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.getPoolIDValue()) + transaction.getCryptoCurrencyValue() + transaction.getTypeValue();
+                String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
                 if (!exportList.containsKey(key)) {
-                     exportList.put(key,new TransactionModel(transaction.getBlockTimeValue(),transaction.getOwnerValue(),transaction.getTypeValue(),transaction.getAmountValue(),transaction.getBlockHashValue(),transaction.getBlockHeightValue(),transaction.getPoolIDValue(),transaction.getTxIDValue(),this.mainViewController.transactionController));
+                     exportList.put(key,new TransactionModel(transaction.blockTimeProperty.getValue(),transaction.ownerProperty.getValue(),transaction.typeProperty.getValue(),transaction.amountProperty.getValue(),transaction.blockHashProperty.getValue(),transaction.blockHeightProperty.getValue(),transaction.poolIDProperty.getValue(),transaction.txIDProperty.getValue(),this.mainViewController.transactionController));
                 } else {
-                    exportList.get(key).setCrypto(exportList.get(key).getCryptoValueValue() + transaction.getCryptoValueValue());
-                    exportList.get(key).setFiatValue(exportList.get(key).getFiatValueValue() + transaction.getFiatValueValue());
+                    exportList.get(key).cryptoValueProperty.set(exportList.get(key).cryptoValueProperty.getValue() + transaction.cryptoValueProperty.getValue());
+                    exportList.get(key).fiatValueProperty.set(exportList.get(key).fiatValueProperty.getValue() + transaction.fiatValueProperty.getValue());
                 }
             } else {
                 for (HashMap.Entry<String, TransactionModel> entry : exportList.entrySet()) {
 
                 sb = new StringBuilder();
-                sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().getBlockTimeValue())).append(exportSplitter);
-                sb.append(entry.getValue().getTypeValue()).append(exportSplitter);
-                sb.append(String.format(localeDecimal, "%.8f", entry.getValue().getCryptoValueValue())).append(exportSplitter);
-                sb.append(entry.getValue().getCryptoCurrencyValue()).append(exportSplitter);
-                sb.append(String.format(localeDecimal, "%.8f", entry.getValue().getFiatValueValue())).append(exportSplitter);
-                sb.append(entry.getValue().getFiatCurrencyValue()).append(exportSplitter);
-                sb.append(entry.getValue().getPoolIDValue()).append(exportSplitter);
-                sb.append(entry.getValue().getBlockHeightValue()).append(exportSplitter);
-                sb.append(entry.getValue().getBlockHashValue()).append(exportSplitter);
-                sb.append(entry.getValue().getOwnerValue()).append(exportSplitter);
-                sb.append(entry.getValue().getTxIDValue());
+                sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().blockTimeProperty.getValue())).append(exportSplitter);
+                sb.append(entry.getValue().typeProperty.getValue()).append(exportSplitter);
+                sb.append(String.format(localeDecimal, "%.8f", entry.getValue().cryptoValueProperty.getValue())).append(exportSplitter);
+                sb.append(entry.getValue().cryptoCurrencyProperty.getValue()).append(exportSplitter);
+                sb.append(String.format(localeDecimal, "%.8f", entry.getValue().fiatValueProperty.getValue())).append(exportSplitter);
+                sb.append(entry.getValue().fiatCurrencyProperty.getValue()).append(exportSplitter);
+                sb.append(entry.getValue().poolIDProperty.getValue()).append(exportSplitter);
+                sb.append(entry.getValue().blockHeightProperty.getValue()).append(exportSplitter);
+                sb.append(entry.getValue().blockHashProperty.getValue()).append(exportSplitter);
+                sb.append(entry.getValue().ownerProperty.getValue()).append(exportSplitter);
+                sb.append(entry.getValue().txIDProperty.getValue());
                 sb.append("\n");
                 writer.write(sb.toString());
                 sb = null;
@@ -128,24 +128,24 @@ public class ExportService {
                 }
                 exportList = new TreeMap<>();
 
-                String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.getPoolIDValue()) + transaction.getCryptoCurrencyValue() + transaction.getTypeValue();
-                exportList.put(key,new TransactionModel(transaction.getBlockTimeValue(),transaction.getOwnerValue(),transaction.getTypeValue(),transaction.getAmountValue(),transaction.getBlockHashValue(),transaction.getBlockHeightValue(),transaction.getPoolIDValue(),transaction.getTxIDValue(),this.mainViewController.transactionController));
+                String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                exportList.put(key,new TransactionModel(transaction.blockTimeProperty.getValue(),transaction.ownerProperty.getValue(),transaction.typeProperty.getValue(),transaction.amountProperty.getValue(),transaction.blockHashProperty.getValue(),transaction.blockHeightProperty.getValue(),transaction.poolIDProperty.getValue(),transaction.txIDProperty.getValue(),this.mainViewController.transactionController));
 
             }
 
             }else{
                 sb = new StringBuilder();
-                sb.append(this.mainViewController.transactionController.convertTimeStampToString(transaction.getBlockTimeValue())).append(exportSplitter);
-                sb.append(transaction.getTypeValue()).append(exportSplitter);
-                sb.append(String.format(localeDecimal, "%.8f", transaction.getCryptoValueValue())).append(exportSplitter);
-                sb.append(transaction.getCryptoCurrencyValue()).append(exportSplitter);
-                sb.append(String.format(localeDecimal, "%.8f", transaction.getFiatValueValue())).append(exportSplitter);
-                sb.append(transaction.getFiatCurrencyValue()).append(exportSplitter);
-                sb.append(transaction.getPoolIDValue()).append(exportSplitter);
-                sb.append(transaction.getBlockHeightValue()).append(exportSplitter);
-                sb.append(transaction.getBlockHashValue()).append(exportSplitter);
-                sb.append(transaction.getOwnerValue()).append(exportSplitter);
-                sb.append(transaction.getTxIDValue());
+                sb.append(this.mainViewController.transactionController.convertTimeStampToString(transaction.blockTimeProperty.getValue())).append(exportSplitter);
+                sb.append(transaction.typeProperty.getValue()).append(exportSplitter);
+                sb.append(String.format(localeDecimal, "%.8f", transaction.cryptoValueProperty.getValue())).append(exportSplitter);
+                sb.append(transaction.cryptoCurrencyProperty.getValue()).append(exportSplitter);
+                sb.append(String.format(localeDecimal, "%.8f", transaction.fiatValueProperty.getValue())).append(exportSplitter);
+                sb.append(transaction.fiatCurrencyProperty.getValue()).append(exportSplitter);
+                sb.append(transaction.poolIDProperty.getValue()).append(exportSplitter);
+                sb.append(transaction.blockHeightProperty.getValue()).append(exportSplitter);
+                sb.append(transaction.blockHashProperty.getValue()).append(exportSplitter);
+                sb.append(transaction.ownerProperty.getValue()).append(exportSplitter);
+                sb.append(transaction.txIDProperty.getValue());
                 sb.append("\n");
                 writer.write(sb.toString());
                 sb = null;
@@ -157,17 +157,17 @@ public class ExportService {
         for (HashMap.Entry<String, TransactionModel> entry : exportList.entrySet()) {
 
             sb = new StringBuilder();
-            sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().getBlockTimeValue())).append(exportSplitter);
-            sb.append(entry.getValue().getTypeValue()).append(exportSplitter);
-            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().getCryptoValueValue())).append(exportSplitter);
-            sb.append(entry.getValue().getCryptoCurrencyValue()).append(exportSplitter);
-            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().getFiatValueValue())).append(exportSplitter);
-            sb.append(entry.getValue().getFiatCurrencyValue()).append(exportSplitter);
-            sb.append(entry.getValue().getPoolIDValue()).append(exportSplitter);
-            sb.append(entry.getValue().getBlockHeightValue()).append(exportSplitter);
-            sb.append(entry.getValue().getBlockHashValue()).append(exportSplitter);
-            sb.append(entry.getValue().getOwnerValue()).append(exportSplitter);
-            sb.append(entry.getValue().getTxIDValue());
+            sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().blockTimeProperty.getValue())).append(exportSplitter);
+            sb.append(entry.getValue().typeProperty.getValue()).append(exportSplitter);
+            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().cryptoValueProperty.getValue())).append(exportSplitter);
+            sb.append(entry.getValue().cryptoCurrencyProperty.getValue()).append(exportSplitter);
+            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().fiatValueProperty.getValue())).append(exportSplitter);
+            sb.append(entry.getValue().fiatCurrencyProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().poolIDProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().blockHeightProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().blockHashProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().ownerProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().txIDProperty.getValue());
             sb.append("\n");
             writer.write(sb.toString());
             sb = null;
