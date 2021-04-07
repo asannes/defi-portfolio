@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="167.0" prefWidth="455.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/15.0.1" fx:controller="portfolio.views.NoDataView">
+<AnchorPane fx:id="anchorPane" prefHeight="167.0" prefWidth="455.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portfolio.views.NoDataView">
    <children>
       <Label fx:id="infoText" layoutX="145.0" layoutY="14.0" prefHeight="106.0" prefWidth="287.0" text="Es konnten keine Daten geladen werden. Weite Informationen im Wiki." wrapText="true">
          <font>
@@ -18,12 +18,12 @@
       </Label>
       <ImageView fx:id="img" fitHeight="72.0" fitWidth="78.0" layoutX="37.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../icons/Help.png" />
+            <Image url="@../../icons/help.png" />
          </image>
       </ImageView>
       <Button fx:id="btnClose" layoutX="362.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#Close" prefHeight="40.0" prefWidth="55.0">
       <graphic>
-         <ImageView fx:id="img" fitHeight="22.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+         <ImageView fitHeight="22.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
             <image>
                <Image url="@../../icons/exit.png" />
             </image>

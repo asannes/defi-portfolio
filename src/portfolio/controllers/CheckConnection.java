@@ -34,7 +34,7 @@ public class CheckConnection extends TimerTask {
                                 SettingsController.getInstance().runCheckTimer = false;
                                 SettingsController.getInstance().errorBouncer = 0;
                                 this.mainViewController.btnUpdateDatabasePressed();
-                                this.mainViewController.plotUpdate(this.mainViewController.mainView.tabPane.getSelectionModel().getSelectedItem().getText());
+                                this.mainViewController.plotUpdate(this.mainViewController.mainView.tabPane.getSelectionModel().getSelectedItem().getId());
                                 File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
                                 if (file.exists()) file.delete();
                             }else{

@@ -68,5 +68,7 @@
   "TotalYield": "Total yield",
   "TotalYieldRewards": "Rewards yield",
   "TotalYieldCommissions": "Commissions yield",
-  "TotalAmount": "Total amount"
+  "TotalAmount": "Total amount",
+  "Disclaim": "Disclaimer: \nThe content provided is for informational purposes only. \nWe do not guarantee the accuracy of the data.",
+  "DisclaimCheck": "Do not show again"
 }

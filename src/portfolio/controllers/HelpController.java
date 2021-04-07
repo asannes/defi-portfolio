@@ -10,7 +10,6 @@ public class HelpController {
     static {
         OBJ = new HelpController();
     }
-    public StringProperty strHelpText = new SimpleStringProperty();
     public StringProperty strCloseText= new SimpleStringProperty();
     public static HelpController getInstance() {
         return OBJ;

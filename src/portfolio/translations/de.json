@@ -68,5 +68,7 @@
   "TotalYield": "Gesamtrendite",
   "TotalYieldRewards": "Belohnungsrendite",
   "TotalYieldCommissions": "Kommissionsrendite",
-  "TotalAmount": "Gesamtbetrag"
+  "TotalAmount": "Gesamtbetrag",
+  "Disclaim": "Haftungsausschluss: \nDie zur Verfügung gestellten Inhalte dienen nur zu Informationszwecken. \nWir übernehmen keine Garantie für die Richtigkeit der Daten.",
+  "DisclaimCheck": "Nicht nochmal anzeigen"
 }

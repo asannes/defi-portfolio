@@ -17,26 +17,35 @@ public class HelpView implements Initializable {
 
     public Button btnClose;
     public AnchorPane anchorPane;
-    HelpController helpController = HelpController.getInstance();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        btnClose.getTooltip().textProperty().bindBidirectional(helpController.strCloseText);
+        btnClose.getTooltip().setText(SettingsController.getInstance().translationList.getValue().get("Close").toString());
+        btnClose.setText(SettingsController.getInstance().translationList.getValue().get("Close").toString());
     }
 
     public void btnMailToCallback() throws IOException {
 
-        String mailto = "mailto:defiportfoliomanagement@gmail.com?subject=DeFi-Portfolio-" + SettingsController.getInstance().Version;
-        String cmd = "";
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) {
-            cmd = "cmd.exe /c start \"\" \"" + mailto + "\"";
-        } else if (os.contains("osx")) {
-            cmd = "open " + mailto;
-        } else if (os.contains("nix") || os.contains("aix") || os.contains("nux")) {
-            cmd = "xdg-open " + mailto;
+        if (SettingsController.getInstance().getPlatform().equals("linux")) {
+            // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
+            try {
+                if (Runtime.getRuntime().exec(new String[]{"which", "xdg-open"}).getInputStream().read() != -1) {
+                    Runtime.getRuntime().exec(new String[]{"xdg-open", "https://youtu.be/86xO3_oFXAQ"});
+                } else {
+                    System.out.println("xdg-open is not supported!");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                Desktop.getDesktop().browse(new URL("https://youtu.be/86xO3_oFXAQ").toURI());
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
-        Runtime.getRuntime().exec(cmd);
     }
 
 
