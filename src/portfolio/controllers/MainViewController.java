@@ -91,6 +91,10 @@ public class MainViewController {
                             this.transactionController.addToPortfolioModel(transactionModel);
                         }
                     }
+                    for(BalanceModel balanceModel : this.transactionController.getBalanceList()){
+                        balanceModel.setFiat1(balanceModel.getCrypto1Value()*CoinPriceController.getInstance().getPriceFromTimeStamp(balanceModel.getToken1NameValue()+SettingsController.getInstance().selectedFiatCurrency.getValue(),System.currentTimeMillis()));
+                        balanceModel.setFiat2(balanceModel.getCrypto2Value()*CoinPriceController.getInstance().getPriceFromTimeStamp(balanceModel.getToken2NameValue()+SettingsController.getInstance().selectedFiatCurrency.getValue(),System.currentTimeMillis()));
+                    }
                 }
         );
         startTimer();
