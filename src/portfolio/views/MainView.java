@@ -1299,8 +1299,6 @@ public class MainView implements Initializable {
         this.transactionColumn.setText(this.mainViewController.settingsController.translationList.getValue().get("TransactionHash").toString());
         this.fiatColumn.setText(this.mainViewController.settingsController.translationList.getValue().get("Total").toString());
         this.mainViewController.donateController.strDonateText.setValue(this.mainViewController.settingsController.translationList.getValue().get("DonateLabel").toString());
-        this.mainViewController.helpController.strHelpText.setValue(this.mainViewController.settingsController.translationList.getValue().get("ContactUS").toString());
-        this.mainViewController.helpController.strCloseText.setValue(this.mainViewController.settingsController.translationList.getValue().get("Close").toString());
         this.mainViewController.settingsController.selectedPlotType.setValue(this.mainViewController.settingsController.translationList.getValue().get("Individual").toString());
         this.mainViewController.settingsController.selectedIntervall.setValue(this.mainViewController.settingsController.translationList.getValue().get("Daily").toString());
 

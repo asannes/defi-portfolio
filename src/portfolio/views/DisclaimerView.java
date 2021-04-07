@@ -20,20 +20,14 @@ public class DisclaimerView implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if(SettingsController.getInstance().selectedLanguage.getValue().equals("English")){
-            String strDisclaimer = "Disclaimer: \nThe content provided is for informational purposes only. \nWe do not guarantee the accuracy of the data.";
-            lblDisclaimer.setText(strDisclaimer);
-        }else
-        {
-            String strDisclaimer = "Haftungsausschluss: \nDie zur Verfügung gestellten Inhalte dienen nur zu Informationszwecken. \nWir übernehmen keine Garantie für die Richtigkeit der Daten.";
-            lblDisclaimer.setText(strDisclaimer);
-        }
+        lblDisclaimer.setText(SettingsController.getInstance().translationList.getValue().get("Disclaim").toString());
+        hCheckBox.setText(SettingsController.getInstance().translationList.getValue().get("DisclaimCheck").toString());
+        btnClose.setText(SettingsController.getInstance().translationList.getValue().get("Close").toString());
     }
 
     public void btnClose() {
         SettingsController.getInstance().showDisclaim = !hCheckBox.isSelected();
         SettingsController.getInstance().saveSettings();
-
         Stage stage = (Stage) btnClose.getScene().getWindow();
         stage.close();
     }

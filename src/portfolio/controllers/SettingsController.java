@@ -85,7 +85,7 @@ public class SettingsController {
     //All relevant paths and files
     public String strTransactionData = "transactionData.portfolio";
     public String strCoinPriceData = "coinPriceData.portfolio";
-    public String[] languages = new String[]{"English", "Deutsch"};
+    public String[] languages = new String[]{"English", "Deutsch","Espa\u00F1ol"};
     public String[] currencies = new String[]{"EUR", "USD", "CHF"};
     public String[] decSeperators = new String[]{".", ","};
     public String[] csvSeperators = new String[]{",", ";"};
@@ -135,7 +135,11 @@ public class SettingsController {
             case "Deutsch":
                 fileName += "de.json";
                 break;
+            case "Espa\u00F1ol":
+                fileName += "es.json";
+                break;
             default:
+                fileName += "en.json";
                 break;
         }
         try (FileReader reader = new FileReader(fileName)) {
@@ -173,7 +177,12 @@ public class SettingsController {
             }
 
             try {
-                this.selectedLanguage.setValue(configProps.getProperty("SelectedLanguage"));
+                if(configProps.getProperty("SelectedLanguage").contains("Espa")){
+                    this.selectedLanguage.setValue("Espa\u00F1ol");
+                }else{
+
+                    this.selectedLanguage.setValue(configProps.getProperty("SelectedLanguage"));
+                }
                 this.selectedFiatCurrency.setValue(configProps.getProperty("SelectedFiatCurrency"));
                 this.selectedDecimal.setValue(configProps.getProperty("SelectedDecimal"));
                 this.selectedSeperator.setValue(configProps.getProperty("SelectedSeperator"));
