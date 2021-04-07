@@ -234,9 +234,8 @@ public class MainView implements Initializable {
 
     public void btnAnalysePressed() {
         this.anchorPanelAnalyse.toFront();
-        //   this.fiatColumn.setVisible(!this.tabPane.getSelectionModel().getSelectedItem().getText().equals(this.mainViewController.settingsController.translationList.getValue().get("Rewards")));
-        if (!this.init) {
-            this.mainViewController.plotUpdate(this.tabPane.getSelectionModel().getSelectedItem().getText());
+          if (!this.init) {
+            this.mainViewController.plotUpdate(this.tabPane.getSelectionModel().getSelectedItem().getId());
             this.updateHeader();
         }
     }
@@ -452,7 +451,7 @@ public class MainView implements Initializable {
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) ->
                 {
                     if (!this.init)
-                        mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                        mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
                     cmbCoins.setVisible(true);
                     cmbFiat.setVisible(true);
                     cmbPlotCurrency.setVisible(true);
@@ -468,30 +467,25 @@ public class MainView implements Initializable {
         this.cmbIntervall.valueProperty().addListener((ov, oldValue, newValue) ->
         {
             if (newValue != null) {
+                this.mainViewController.settingsController.selectedIntervallInt = "Daily";
+                if(this.mainViewController.settingsController.translationList.getValue().get("Daily").equals(newValue)){
+                    this.mainViewController.settingsController.selectedIntervallInt = "Daily";
+                }
 
-                switch (newValue) {
-                    case "Daily":
-                    case "Täglich":
-                        this.mainViewController.settingsController.selectedIntervallInt = "Daily";
-                        break;
-                    case "Weekly":
-                    case "Wöchentlich":
-                        this.mainViewController.settingsController.selectedIntervallInt = "Weekly";
-                        break;
-                    case "Monthly":
-                    case "Monatlich":
-                        this.mainViewController.settingsController.selectedIntervallInt = "Monthly";
-                        break;
-                    case "Yearly":
-                    case "Jährlich":
-                        this.mainViewController.settingsController.selectedIntervallInt = "Yearly";
-                        break;
-                    default:
-                        break;
+                if(this.mainViewController.settingsController.translationList.getValue().get("Weekly").equals(newValue)){
+                    this.mainViewController.settingsController.selectedIntervallInt = "Weekly";
+                }
+
+                if(this.mainViewController.settingsController.translationList.getValue().get("Monthly").equals(newValue)){
+                    this.mainViewController.settingsController.selectedIntervallInt = "Monthly";
+                }
+
+                if(this.mainViewController.settingsController.translationList.getValue().get("Yearly").equals(newValue)){
+                    this.mainViewController.settingsController.selectedIntervallInt = "Yearly";
                 }
             }
             if (!this.init)
-                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
             this.mainViewController.settingsController.saveSettings();
         });
 
@@ -502,7 +496,7 @@ public class MainView implements Initializable {
         this.cmbCoins.valueProperty().bindBidirectional(this.mainViewController.settingsController.selectedCoin);
         this.cmbCoins.valueProperty().addListener((ov, oldValue, newValue) -> {
             if (!this.init)
-                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
 
             this.updateHeader();
             this.mainViewController.settingsController.saveSettings();
@@ -524,7 +518,7 @@ public class MainView implements Initializable {
 
         {
             if (!oldValue.equals(newValue) & this.plotRewards != null) {
-                if (!this.init) mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                if (!this.init) mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
                 this.mainViewController.settingsController.saveSettings();
                 this.fiatColumn.setText(this.mainViewController.settingsController.translationList.getValue().get("Total") + " (" + newValue + ")");
                 this.updateHeader();
@@ -542,7 +536,7 @@ public class MainView implements Initializable {
         this.cmbFiat.valueProperty().addListener((ov, oldValue, newValue) ->
         {
             if (!this.init)
-                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
             this.mainViewController.settingsController.saveSettings();
 
             this.updateHeader();
@@ -552,7 +546,7 @@ public class MainView implements Initializable {
         this.mainViewController.settingsController.selectedDecimal.addListener((ov, oldValue, newValue) ->
         {
             if (!oldValue.equals(newValue) & this.plotRewards != null) {
-                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
             }
         });
 
@@ -560,7 +554,7 @@ public class MainView implements Initializable {
         this.cmbPlotCurrency.valueProperty().addListener((ov, oldValue, newValue) ->
         {
             if (!this.init)
-                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
         });
 
         this.cmbPlotCurrencyCom.valueProperty().bindBidirectional(this.mainViewController.settingsController.selectedPlotType);
@@ -569,7 +563,7 @@ public class MainView implements Initializable {
         this.dateFrom.valueProperty().addListener((ov, oldValue, newValue) ->
         {
             if (!this.init)
-                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
         });
 
         this.dateFromCom.valueProperty().bindBidirectional(this.mainViewController.settingsController.dateFrom);
@@ -615,7 +609,7 @@ public class MainView implements Initializable {
 
                 {
                     if (!this.init)
-                        mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getText());
+                        mainViewController.plotUpdate(tabPane.getSelectionModel().getSelectedItem().getId());
                 });
         this.dateTo.setValue(LocalDate.now());
         this.dateTo.setDayCellFactory(picker -> new
@@ -1177,8 +1171,8 @@ public class MainView implements Initializable {
         ContextMenu contextMenuPlotData = new ContextMenu();
         menuItemCopySelectedPlot.setOnAction(event -> mainViewController.copySelectedDataToClipboard(plotTable.selectionModelProperty().get().getSelectedItems(), false));
         menuItemCopyHeaderSelectedPlot.setOnAction(event -> mainViewController.copySelectedDataToClipboard(plotTable.selectionModelProperty().get().getSelectedItems(), true));
-        menuItemExportSelectedPlot.setOnAction(event -> mainViewController.exportPoolPairToExcel(plotTable.selectionModelProperty().get().getSelectedItems(), this.tabPane.getSelectionModel().getSelectedItem().getText()));
-        menuItemExportAllSelectedPlot.setOnAction(event -> mainViewController.exportPoolPairToExcel(plotTable.getItems(), this.tabPane.getSelectionModel().getSelectedItem().getText()));
+        menuItemExportSelectedPlot.setOnAction(event -> mainViewController.exportPoolPairToExcel(plotTable.selectionModelProperty().get().getSelectedItems(), this.tabPane.getSelectionModel().getSelectedItem().getId()));
+        menuItemExportAllSelectedPlot.setOnAction(event -> mainViewController.exportPoolPairToExcel(plotTable.getItems(), this.tabPane.getSelectionModel().getSelectedItem().getId()));
 
         contextMenuPlotData.getItems().add(menuItemCopySelectedPlot);
         contextMenuPlotData.getItems().add(menuItemCopyHeaderSelectedPlot);

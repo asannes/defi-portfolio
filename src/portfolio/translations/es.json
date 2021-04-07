@@ -51,7 +51,7 @@
   "InitializingData": "Inicializando datos ...",
   "PreparingData": "Preparando datos...",
   "SaveData": "Escribiendo datos...",
-  "UpdateData": "Actualizando datos",
+  "UpdateData": "Actualizando datos ",
   "TransactionHash": "Hash de la transacción",
   "ConnectNode": "<html><body>Conectando al nodo... <br>DeFi Wallet debe estar cerrada</body></html>",
   "UpdateTooltip": "Click \"Conectando al nodo\" (defi-app/DeFi Wallet debe estar cerrada)",
