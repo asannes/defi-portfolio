@@ -153,7 +153,7 @@ public class MainView implements Initializable {
     public MenuItem menuItemExportAllSelectedPlot = new MenuItem("Export all to CSV");
 
 
-    public Stage settingsStage, helpStage, donateStage;
+    public Stage settingsStage, helpStage, donateStage,stageUpdateData;
     public boolean init = true;
     public Button btnSettings;
     public Button btnHelp;
@@ -428,31 +428,31 @@ public class MainView implements Initializable {
             try {
                 rootDisclaimer = FXMLLoader.load(getClass().getResource("ImportDataView.fxml"));
 
-                Scene sceneDisclaimer = new Scene(rootDisclaimer);
-                Stage stageDisclaimer = new Stage();
+                Scene sceneUpdateData = new Scene(rootDisclaimer);
+                this.stageUpdateData = new Stage();
                 final Delta dragDelta = new Delta();
-                stageDisclaimer.setTitle("DeFi-Portfolio Disclaimer");
-                stageDisclaimer.setScene(sceneDisclaimer);
-                stageDisclaimer.initStyle(StageStyle.UNDECORATED);
-                sceneDisclaimer.setOnMousePressed(mouseEvent -> {
+                this.stageUpdateData.setTitle("DeFi-Portfolio Disclaimer");
+                this.stageUpdateData.setScene(sceneUpdateData);
+                this.stageUpdateData.initStyle(StageStyle.UNDECORATED);
+                sceneUpdateData.setOnMousePressed(mouseEvent -> {
                     // record a delta distance for the drag and drop operation.
-                    dragDelta.x = stageDisclaimer.getX() - mouseEvent.getScreenX();
-                    dragDelta.y = stageDisclaimer.getY() - mouseEvent.getScreenY();
+                    dragDelta.x = this.stageUpdateData.getX() - mouseEvent.getScreenX();
+                    dragDelta.y = this.stageUpdateData.getY() - mouseEvent.getScreenY();
                 });
-                sceneDisclaimer.setOnMouseDragged(mouseEvent -> {
-                    stageDisclaimer.setX(mouseEvent.getScreenX() + dragDelta.x);
-                    stageDisclaimer.setY(mouseEvent.getScreenY() + dragDelta.y);
+                sceneUpdateData.setOnMouseDragged(mouseEvent -> {
+                    this.stageUpdateData.setX(mouseEvent.getScreenX() + dragDelta.x);
+                    this.stageUpdateData.setY(mouseEvent.getScreenY() + dragDelta.y);
                 });
 
-                stageDisclaimer.show();
-                stageDisclaimer.setAlwaysOnTop(true);
+                this.stageUpdateData.show();
+                this.stageUpdateData.setAlwaysOnTop(true);
 
                 if (SettingsController.getInstance().selectedStyleMode.getValue().equals("Dark Mode")) {
                     java.io.File darkMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/darkMode.css");
-                    stageDisclaimer.getScene().getStylesheets().add(darkMode.toURI().toString());
+                    this.stageUpdateData.getScene().getStylesheets().add(darkMode.toURI().toString());
                 } else {
                     java.io.File lightMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/lightMode.css");
-                    stageDisclaimer.getScene().getStylesheets().add(lightMode.toURI().toString());
+                    this.stageUpdateData.getScene().getStylesheets().add(lightMode.toURI().toString());
                 }} catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -1199,7 +1199,7 @@ public class MainView implements Initializable {
         this.mainAnchorPane.getStylesheets().clear();
         if (this.helpStage != null) this.helpStage.getScene().getStylesheets().clear();
         if (this.settingsStage != null) this.settingsStage.getScene().getStylesheets().clear();
-        if (this.donateStage != null) this.donateStage.getScene().getStylesheets().clear();
+        if (this.stageUpdateData != null) this.stageUpdateData.getScene().getStylesheets().clear();
 
         if (this.mainViewController.settingsController.selectedStyleMode.getValue().equals("Dark Mode")) {
             this.mainAnchorPane.getStylesheets().add(darkMode.toURI().toString());
@@ -1209,6 +1209,8 @@ public class MainView implements Initializable {
                 this.settingsStage.getScene().getStylesheets().add(darkMode.toURI().toString());
             if (this.donateStage != null)
                 this.donateStage.getScene().getStylesheets().add(darkMode.toURI().toString());
+            if (this.stageUpdateData != null)
+                this.stageUpdateData.getScene().getStylesheets().add(darkMode.toURI().toString());
         } else {
             this.mainAnchorPane.getStylesheets().add(lightMode.toURI().toString());
             if (this.helpStage != null)
@@ -1217,6 +1219,8 @@ public class MainView implements Initializable {
                 this.settingsStage.getScene().getStylesheets().add(lightMode.toURI().toString());
             if (this.donateStage != null)
                 this.donateStage.getScene().getStylesheets().add(lightMode.toURI().toString());
+            if (this.stageUpdateData != null)
+                this.stageUpdateData.getScene().getStylesheets().add(lightMode.toURI().toString());
         }
     }
 

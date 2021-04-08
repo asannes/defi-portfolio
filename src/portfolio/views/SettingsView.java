@@ -37,6 +37,7 @@ public class SettingsView implements Initializable {
     public Label lblDeleteData;
     public AnchorPane anchorPane;
     public Label labelDataSource;
+    public Label lblCloseDefid;
     @FXML
     public StackPane stack;
     @FXML
@@ -44,7 +45,9 @@ public class SettingsView implements Initializable {
     @FXML
     public Button btnDeleteData;
     @FXML
-    private ComboBox<String> cmbLanguage, cmbPrefCurrency, cmbDecSeperator, cmbCSVSeperator, cmbPrefferedStyle, dataSourceCmb;
+    public Button btnCloseDefid;
+    @FXML
+    private ComboBox<String> cmbLanguage, cmbPrefCurrency, cmbDecSeperator, cmbCSVSeperator, cmbPrefferedStyle, dataSourceCmb,cmbDefaultDataSource;
     SettingsController settingsController = SettingsController.getInstance();
 
     public void btnSaveAndApplyPressed() {
@@ -102,6 +105,9 @@ public class SettingsView implements Initializable {
         this.dataSourceCmb.getItems().addAll(this.settingsController.datasources);
         this.dataSourceCmb.valueProperty().bindBidirectional(this.settingsController.selectedSource);
 
+        this.lblCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseDefid").toString());
+        this.btnCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseButton").toString());
+
         this.SwitchButton();
     }
 
@@ -114,6 +120,8 @@ public class SettingsView implements Initializable {
         this.lblDeleteData.setText(this.settingsController.translationList.getValue().get("DeleteLabel").toString());
         this.btnDeleteData.setText(this.settingsController.translationList.getValue().get("DeleteButton").toString());
         this.labelDataSource.setText(this.settingsController.translationList.getValue().get("DataSourceLabel").toString());
+        this.lblCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseDefid").toString());
+        this.btnCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseButton").toString());
     }
 
     private final Rectangle back = new Rectangle(35, 15, Color.RED);
@@ -177,6 +185,10 @@ public class SettingsView implements Initializable {
         switchButton.setFocusTraversable(false);
         switchButton.setOnMouseClicked(click);
         stack.setOnMouseClicked(click);
+    }
+
+    public void btnCloseDefidPressed(){
+        TransactionController.getInstance().stopServer();
     }
 
 }
