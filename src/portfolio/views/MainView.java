@@ -34,6 +34,7 @@ import java.util.*;
 
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import portfolio.Main;
 import portfolio.controllers.CheckConnection;
 import portfolio.controllers.SettingsController;
 import portfolio.controllers.TransactionController;
@@ -409,7 +410,6 @@ public class MainView implements Initializable {
         updateStylesheet();
 
         this.mainViewController.settingsController.selectedStyleMode.addListener(style -> updateStylesheet());
-        final Delta dragDelta = new Delta();
 
         this.btnConnect.disableProperty().bind(this.mainViewController.bDataBase.not());
         this.tokenLabel.textProperty().bindBidirectional(this.mainViewController.settingsController.tokenBalance);
@@ -423,29 +423,39 @@ public class MainView implements Initializable {
         this.strCurrentBlockOnBlockchain.textProperty().bindBidirectional(this.mainViewController.strCurrentBlockOnBlockchain);
         this.strLastUpdate.textProperty().bindBidirectional(this.mainViewController.settingsController.lastUpdate);
         this.btnUpdateDatabase.setOnAction(e -> {
-            this.mainViewController.settingsController.selectedLaunchSync = true;
-            this.mainViewController.transactionController.startServer();
-            this.mainViewController.settingsController.runCheckTimer = true;
-            Timer checkTimer = new Timer("");
-            if (SettingsController.getInstance().getPlatform().equals("mac")) {
-                try {
-                    FileWriter myWriter = new FileWriter(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
-                    myWriter.write(this.mainViewController.settingsController.translationList.getValue().get("ConnectNode").toString());
-                    myWriter.close();
-                    try {
-                        Process ps = null;
-                        ps = Runtime.getRuntime().exec("./jre/bin/java -Xdock:icon=icons.icns -jar UpdateData.jar " + this.mainViewController.settingsController.selectedStyleMode.getValue().replace(" ", ""));
-                    } catch (IOException r) {
-                        SettingsController.getInstance().logger.warning("Exception occured: " + r.toString());
-                    }
-                } catch (IOException h) {
-                    SettingsController.getInstance().logger.warning("Could not write to update.portfolio.");
-                }
-            } else {
-                this.mainViewController.transactionController.updateJFrame();
-                this.mainViewController.transactionController.jl.setText(this.mainViewController.settingsController.translationList.getValue().get("ConnectNode").toString());
+
+            Parent rootDisclaimer = null;
+            try {
+                rootDisclaimer = FXMLLoader.load(getClass().getResource("ImportDataView.fxml"));
+
+                Scene sceneDisclaimer = new Scene(rootDisclaimer);
+                Stage stageDisclaimer = new Stage();
+                final Delta dragDelta = new Delta();
+                stageDisclaimer.setTitle("DeFi-Portfolio Disclaimer");
+                stageDisclaimer.setScene(sceneDisclaimer);
+                stageDisclaimer.initStyle(StageStyle.UNDECORATED);
+                sceneDisclaimer.setOnMousePressed(mouseEvent -> {
+                    // record a delta distance for the drag and drop operation.
+                    dragDelta.x = stageDisclaimer.getX() - mouseEvent.getScreenX();
+                    dragDelta.y = stageDisclaimer.getY() - mouseEvent.getScreenY();
+                });
+                sceneDisclaimer.setOnMouseDragged(mouseEvent -> {
+                    stageDisclaimer.setX(mouseEvent.getScreenX() + dragDelta.x);
+                    stageDisclaimer.setY(mouseEvent.getScreenY() + dragDelta.y);
+                });
+
+                stageDisclaimer.show();
+                stageDisclaimer.setAlwaysOnTop(true);
+
+                if (SettingsController.getInstance().selectedStyleMode.getValue().equals("Dark Mode")) {
+                    java.io.File darkMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/darkMode.css");
+                    stageDisclaimer.getScene().getStylesheets().add(darkMode.toURI().toString());
+                } else {
+                    java.io.File lightMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/lightMode.css");
+                    stageDisclaimer.getScene().getStylesheets().add(lightMode.toURI().toString());
+                }} catch (IOException ioException) {
+                ioException.printStackTrace();
             }
-            checkTimer.scheduleAtFixedRate(new CheckConnection(this.mainViewController), 0, 30000);
         });
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) ->
