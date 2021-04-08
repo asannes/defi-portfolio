@@ -72,5 +72,6 @@
   "Disclaim": "Disclaimer: \nThe content provided is for informational purposes only. \nWe do not guarantee the accuracy of the data.",
   "DisclaimCheck": "Do not show again",
   "CloseDefid": "Close Defid",
-  "CloseButton": "Close"
+  "CloseButton": "Close",
+  "DefaultDataUpdate": "Default update source"
 }

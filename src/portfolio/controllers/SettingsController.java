@@ -41,6 +41,7 @@ public class SettingsController {
     public StringProperty selectedStyleMode = new SimpleStringProperty("Dark Mode");
     public StringProperty selectedCoin = new SimpleStringProperty("BTC-DFI");
     public StringProperty selectedPlotCurrency = new SimpleStringProperty("Coin");
+    public StringProperty selectedDefaulUpdateSource = new SimpleStringProperty("Show options");
     public StringProperty selectedPlotType = new SimpleStringProperty();
     public StringProperty selectedIntervall = new SimpleStringProperty();
     public StringProperty tokenBalance = new SimpleStringProperty();
@@ -64,6 +65,7 @@ public class SettingsController {
     public String[] plotCurrency = new String[]{"Coin", "Fiat"};
     public String[] styleModes = new String[]{"Light Mode", "Dark Mode"};
     public String[] datasources = new String[]{"Active Wallet", "All Wallets"};
+    public String[] defaultUpdateSource = new String[]{"Show options", "Update data","Cake CSV","Wallet CSV"};
 
     public String USER_HOME_PATH = System.getProperty("user.home");
     public String BINARY_FILE_NAME = getPlatform().equals("win") ? "defid.exe" : "defid";
@@ -209,8 +211,11 @@ public class SettingsController {
                 }else{
                     this.lastUpdate.setValue("-");
                 }
-
-
+                if(configProps.getProperty("DefaultDataSource") !=null){
+                    this.selectedDefaulUpdateSource.setValue(configProps.getProperty("DefaultDataSource"));
+                }else{
+                    this.selectedDefaulUpdateSource.setValue("Show options");
+                }
 
             } catch (Exception e) {
                 SettingsController.getInstance().logger.warning("Exception occured: " + e.toString());
@@ -238,6 +243,7 @@ public class SettingsController {
             csvWriter.append("SelectedLaunchSync=" + this.selectedLaunchSync).append("\n");
             csvWriter.append("SelectedSource=" + this.selectedSource.getValue()).append("\n");
             csvWriter.append("LastUpdate=" + this.lastUpdate.getValue()).append("\n");
+            csvWriter.append("DefaultDataSource=" + this.selectedDefaulUpdateSource.getValue()).append("\n");
             csvWriter.flush();
             csvWriter.close();
         } catch (IOException e) {

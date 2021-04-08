@@ -38,6 +38,7 @@ public class SettingsView implements Initializable {
     public AnchorPane anchorPane;
     public Label labelDataSource;
     public Label lblCloseDefid;
+    public Label lblDefaultDataSource;
     @FXML
     public StackPane stack;
     @FXML
@@ -108,6 +109,10 @@ public class SettingsView implements Initializable {
         this.lblCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseDefid").toString());
         this.btnCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseButton").toString());
 
+        this.lblDefaultDataSource.setText(this.settingsController.translationList.getValue().get("DefaultDataUpdate").toString());
+        this.cmbDefaultDataSource.getItems().addAll(this.settingsController.defaultUpdateSource);
+        this.cmbDefaultDataSource.valueProperty().bindBidirectional(this.settingsController.selectedDefaulUpdateSource);
+
         this.SwitchButton();
     }
 
@@ -122,6 +127,7 @@ public class SettingsView implements Initializable {
         this.labelDataSource.setText(this.settingsController.translationList.getValue().get("DataSourceLabel").toString());
         this.lblCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseDefid").toString());
         this.btnCloseDefid.setText(this.settingsController.translationList.getValue().get("CloseButton").toString());
+        this.lblDefaultDataSource.setText(this.settingsController.translationList.getValue().get("DefaultDataUpdate").toString());
     }
 
     private final Rectangle back = new Rectangle(35, 15, Color.RED);

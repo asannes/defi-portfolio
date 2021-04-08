@@ -423,38 +423,50 @@ public class MainView implements Initializable {
         this.strCurrentBlockOnBlockchain.textProperty().bindBidirectional(this.mainViewController.strCurrentBlockOnBlockchain);
         this.strLastUpdate.textProperty().bindBidirectional(this.mainViewController.settingsController.lastUpdate);
         this.btnUpdateDatabase.setOnAction(e -> {
+            switch(SettingsController.getInstance().selectedDefaulUpdateSource.getValue()) {
+                case "Update data":
+                    TransactionController.getInstance().updateDatabase();
+                    break;
+                case "Cake CSV":
+                    TransactionController.getInstance().importCakeCSV();
+                    break;
+                case "Wallet CSV":
+                    TransactionController.getInstance().importWalletCSV();
+                    break;
+                case "Show options":
+                    if (this.stageUpdateData != null) this.stageUpdateData.close();
+                    try {
+                        Parent rootDisclaimer = null;
+                        rootDisclaimer = FXMLLoader.load(getClass().getResource("ImportDataView.fxml"));
 
-            Parent rootDisclaimer = null;
-            try {
-                rootDisclaimer = FXMLLoader.load(getClass().getResource("ImportDataView.fxml"));
+                        Scene sceneUpdateData = new Scene(rootDisclaimer);
+                        this.stageUpdateData = new Stage();
+                        final Delta dragDelta = new Delta();
+                        this.stageUpdateData.setScene(sceneUpdateData);
+                        this.stageUpdateData.initStyle(StageStyle.UNDECORATED);
+                        sceneUpdateData.setOnMousePressed(mouseEvent -> {
+                            // record a delta distance for the drag and drop operation.
+                            dragDelta.x = this.stageUpdateData.getX() - mouseEvent.getScreenX();
+                            dragDelta.y = this.stageUpdateData.getY() - mouseEvent.getScreenY();
+                        });
+                        sceneUpdateData.setOnMouseDragged(mouseEvent -> {
+                            this.stageUpdateData.setX(mouseEvent.getScreenX() + dragDelta.x);
+                            this.stageUpdateData.setY(mouseEvent.getScreenY() + dragDelta.y);
+                        });
+                        this.stageUpdateData.getIcons().add(new Image(new File(System.getProperty("user.dir") + "/defi-portfolio/src/icons/databaseprocess.png").toURI().toString()));
+                        this.stageUpdateData.show();
 
-                Scene sceneUpdateData = new Scene(rootDisclaimer);
-                this.stageUpdateData = new Stage();
-                final Delta dragDelta = new Delta();
-                this.stageUpdateData.setTitle("DeFi-Portfolio Disclaimer");
-                this.stageUpdateData.setScene(sceneUpdateData);
-                this.stageUpdateData.initStyle(StageStyle.UNDECORATED);
-                sceneUpdateData.setOnMousePressed(mouseEvent -> {
-                    // record a delta distance for the drag and drop operation.
-                    dragDelta.x = this.stageUpdateData.getX() - mouseEvent.getScreenX();
-                    dragDelta.y = this.stageUpdateData.getY() - mouseEvent.getScreenY();
-                });
-                sceneUpdateData.setOnMouseDragged(mouseEvent -> {
-                    this.stageUpdateData.setX(mouseEvent.getScreenX() + dragDelta.x);
-                    this.stageUpdateData.setY(mouseEvent.getScreenY() + dragDelta.y);
-                });
-
-                this.stageUpdateData.show();
-                this.stageUpdateData.setAlwaysOnTop(true);
-
-                if (SettingsController.getInstance().selectedStyleMode.getValue().equals("Dark Mode")) {
-                    java.io.File darkMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/darkMode.css");
-                    this.stageUpdateData.getScene().getStylesheets().add(darkMode.toURI().toString());
-                } else {
-                    java.io.File lightMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/lightMode.css");
-                    this.stageUpdateData.getScene().getStylesheets().add(lightMode.toURI().toString());
-                }} catch (IOException ioException) {
-                ioException.printStackTrace();
+                        if (SettingsController.getInstance().selectedStyleMode.getValue().equals("Dark Mode")) {
+                            java.io.File darkMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/darkMode.css");
+                            this.stageUpdateData.getScene().getStylesheets().add(darkMode.toURI().toString());
+                        } else {
+                            java.io.File lightMode = new File(System.getProperty("user.dir") + "/defi-portfolio/src/portfolio/styles/lightMode.css");
+                            this.stageUpdateData.getScene().getStylesheets().add(lightMode.toURI().toString());
+                        }
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                    break;
             }
         });
 

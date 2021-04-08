@@ -72,5 +72,6 @@
   "Disclaim": "Haftungsausschluss: \nDie zur Verfügung gestellten Inhalte dienen nur zu Informationszwecken. \nWir übernehmen keine Garantie für die Richtigkeit der Daten.",
   "DisclaimCheck": "Nicht nochmal anzeigen",
   "CloseDefid": "Defid schließen",
-  "CloseButton": "Schließen"
+  "CloseButton": "Schließen",
+  "DefaultDataUpdate": "Standard Updatequelle"
 }
