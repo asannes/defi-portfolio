@@ -93,11 +93,11 @@ public class TransactionController {
                         FileWriter myWriter = new FileWriter(System.getProperty("user.dir") + "/PortfolioData/" + "defi.sh");
                         myWriter.write(this.settingsController.BINARY_FILE_PATH + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH);
                         myWriter.close();
-
                         defidProcess = Runtime.getRuntime().exec("/usr/bin/open -a Terminal " + System.getProperty("user.dir") + "/PortfolioData/./" + "defi.sh");
                         break;
                     case "win":
-                        defidProcess = Runtime.getRuntime().exec("cmd /c start " + System.getProperty("user.dir")+"/PortfolioData/test defi/ " + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH); // + " -conf=" + this.settingsController.CONFIG_FILE_PATH);
+                        String[] commands = {"cmd", "/c", "start", "\"Synchronizing blockchain\"",this.settingsController.BINARY_FILE_PATH,"-conf="+ this.settingsController.PORTFOLIO_CONFIG_FILE_PATH};
+                        defidProcess=Runtime.getRuntime().exec(commands);
                         break;
                     case "linux":
                         defidProcess = Runtime.getRuntime().exec("/usr/bin/x-terminal-emulator -e " + this.settingsController.BINARY_FILE_PATH + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH);
@@ -243,12 +243,9 @@ public class TransactionController {
         List<TransactionModel> transactionList = new ArrayList<>();
 
         try {
-
             int blockCount = Integer.parseInt(getBlockCountRpc());
             int blockDepth = 10000;
             int restBlockCount = blockCount + blockDepth + 1;
-
-            this.settingsController.logger.warning("Start Sync with depth: "+depth+ " and blockcount "+blockCount);
             for (int i = 0; i < Math.ceil(depth / blockDepth); i = i + 1) {
                 if (this.settingsController.getPlatform().equals("mac")) {
                     try {
@@ -261,9 +258,6 @@ public class TransactionController {
                 } else {
                     this.jl.setText(this.settingsController.translationList.getValue().get("UpdateData").toString() + Math.ceil((((double) (i) * blockDepth) / (double) depth) * 100) + "%");
                 }
-
-                this.settingsController.logger.warning(this.settingsController.translationList.getValue().get("UpdateData").toString() + Math.ceil((((double) (i) * blockDepth) / (double) depth) * 100) + "%");
-
                 if (SettingsController.getInstance().selectedSource.getValue().equals("All Wallets")) {
                     jsonObject = getRpcResponse("{\"method\":\"listaccounthistory\",\"params\":[\"all\", {\"maxBlockHeight\":" + (blockCount - (i * blockDepth) - i) + ",\"depth\":" + blockDepth + ",\"no_rewards\":" + false + ",\"limit\":" + blockDepth * 2000 + "}]}");
                 } else {
@@ -285,8 +279,6 @@ public class TransactionController {
             }
 
             restBlockCount = restBlockCount - blockDepth;
-
-            this.settingsController.logger.warning("rest: "+restBlockCount);
             if (SettingsController.getInstance().selectedSource.getValue().equals("All Wallets")) {
                 jsonObject = getRpcResponse("{\"method\":\"listaccounthistory\",\"params\":[\"all\", {\"maxBlockHeight\":" + (restBlockCount - 1) + ",\"depth\":" + depth % blockDepth + ",\"no_rewards\":" + false + ",\"limit\":" + (depth % blockDepth) * 2000 + "}]}");
             } else {
@@ -303,8 +295,6 @@ public class TransactionController {
                     }
                 }
             }
-
-            this.settingsController.logger.warning("Finished");
         } catch (Exception e) {
             this.settingsController.logger.warning("Exception occured: " + e.toString());
         }
@@ -605,12 +595,10 @@ public class TransactionController {
     }
 
     public boolean updateTransactionData(int depth) {
-        this.settingsController.logger.warning("Start Update");
+
         List<TransactionModel> transactionListNew = getListAccountHistoryRpc(depth);
         List<TransactionModel> updateTransactionList = new ArrayList<>();
         int counter = 0;
-
-        this.settingsController.logger.warning("Synch Finished List size: "+transactionListNew.size() );
         for (int i = transactionListNew.size() - 1; i >= 0; i--) {
             if (transactionListNew.get(i).blockHeightProperty.getValue() > this.localBlockCount) {
                 this.transactionList.add(transactionListNew.get(i));
@@ -639,8 +627,6 @@ public class TransactionController {
             }
         }
         int i = 1;
-
-        this.settingsController.logger.warning("Update Listsize: "+updateTransactionList.size() );
         if (updateTransactionList.size() > 0) {
             try {
                 PrintWriter writer = new PrintWriter(new FileWriter(this.strTransactionData, true));
@@ -681,8 +667,6 @@ public class TransactionController {
                     sb = null;
                 }
                 writer.close();
-                this.settingsController.logger.warning("Writer closed");
-
                 if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
                 this.localBlockCount = this.transactionList.get(this.transactionList.size() - 1).blockHeightProperty.getValue();
                 stopServer();
@@ -802,7 +786,6 @@ public class TransactionController {
     public void getCoinAndTokenBalances() {
         List<BalanceModel> balanceModelList = new ArrayList<>();
         JSONArray jsonArray = getTokenBalances();
-        CoinGeckoApiClient client = new CoinGeckoApiClientImpl();
         try{
 
             Double dfiCoin = Double.parseDouble(getBalance());
@@ -817,7 +800,7 @@ public class TransactionController {
                     Double token1 = Math.sqrt(poolRatio * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]));
                     Double token2 = Math.sqrt(Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) / poolRatio);
                     try {
-                        balanceModelList.add(new BalanceModel(tokenName.split("-")[0], client.getPrice(CoinPriceController.getInstance().getCoinGeckoName(tokenName.split("-")[0]), SettingsController.getInstance().selectedFiatCurrency.getValue()).get(CoinPriceController.getInstance().getCoinGeckoName(tokenName.split("-")[0])).get(SettingsController.getInstance().selectedFiatCurrency.getValue().toLowerCase()) * token1, token1,
+                        balanceModelList.add(new BalanceModel(tokenName.split("-")[0],coinPriceController.getPriceFromTimeStamp( tokenName.split("-")[0] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis())* token1, token1,
                                 tokenName.split("-")[1], coinPriceController.getPriceFromTimeStamp(tokenName.split("-")[1] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis()) * token2, token2, Double.parseDouble(jsonArray.get(i).toString().split("@")[0])));
                     } catch (Exception e) {
                         this.settingsController.logger.warning("Exception occured: " + e.toString());
