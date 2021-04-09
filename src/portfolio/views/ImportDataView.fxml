@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-
-<AnchorPane prefHeight="320.0" prefWidth="240.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portfolio.views.ImportDataView">
+<AnchorPane prefHeight="320.0" prefWidth="240.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portfolio.views.ImportDataView">
    <children>
       <CheckBox fx:id="cmbSaveDefault" layoutX="32.0" layoutY="260.0" mnemonicParsing="false" onAction="#defaultChanged" prefHeight="38.0" prefWidth="109.0" text="Save as default" visible="false" wrapText="true" />
       <Button fx:id="btnClose" layoutX="153.0" layoutY="258.0" mnemonicParsing="false" onAction="#btnClosePressed" prefHeight="40.0" prefWidth="55.0">
@@ -56,7 +53,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </Button>
-      <Button fx:id="btnWalletCSV" alignment="CENTER" cache="true" graphicTextGap="8.0" layoutX="31.0" layoutY="179.0" mnemonicParsing="false" onAction="#btnWalletCSVPressed" prefHeight="63.0" prefWidth="178.0" text="Wallet CSV">
+      <Button fx:id="btnWalletCSV" alignment="CENTER" cache="true" graphicTextGap="8.0" layoutX="31.0" layoutY="179.0" mnemonicParsing="false" onAction="#btnWalletCSVPressed" prefHeight="63.0" prefWidth="178.0" text="DeFi Wallet CSV">
          <cursor>
             <Cursor fx:constant="DEFAULT" />
          </cursor>

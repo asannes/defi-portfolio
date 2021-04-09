@@ -54,6 +54,13 @@
     -fx-pref-width: 10px;
 }
 
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: derive(#373e43, 35%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 0em;
+    -fx-pref-width: 10px;
+}
+
 .hyperlink {
         -fx-underline: true;
         -fx-text-fill: white;
@@ -104,7 +111,7 @@
 
 .tab-pane > .tab-header-area > .headers-region > .tab {
   -fx-background-color: derive(#373e43, 35%);
-  -fx-padding: 1.5em 1em;
+  -fx-padding: 1em 1em;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected {

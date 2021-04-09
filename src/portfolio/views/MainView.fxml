@@ -1,33 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.geometry.Rectangle2D?>
-<?import javafx.scene.Cursor?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.chart.StackedAreaChart?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="mainAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="697.0" minWidth="1000.0" prefHeight="785.0" prefWidth="1370.0" stylesheets="@../styles/darkMode.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portfolio.views.MainView">
+<AnchorPane fx:id="mainAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="697.0" minWidth="1000.0" prefHeight="785.0" prefWidth="1370.0" stylesheets="@../styles/darkMode.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portfolio.views.MainView">
     <AnchorPane fx:id="leftAnchorPane" layoutX="1.0" layoutY="1.0" prefHeight="699.0" prefWidth="199.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="1.0" AnchorPane.topAnchor="0.0">
         <GridPane alignment="CENTER" layoutX="3.0" layoutY="6.0" prefHeight="632.0" prefWidth="191.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <columnConstraints>
@@ -209,17 +190,17 @@
     <AnchorPane id="AnchorPanelRawData" fx:id="anchorPanelRawData" layoutX="194.0" layoutY="27.0" prefHeight="438.0" prefWidth="556.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="194.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <TableView fx:id="rawDataTable" prefHeight="409.0" prefWidth="550.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <columns>
-                <TableColumn fx:id="blockTimeColumn" sortable="false" text="Date" />
-                <TableColumn fx:id="typeColumn" sortable="false" text="Operation" />
-                <TableColumn fx:id="cryptoValueColumn" sortable="false" text="Amount" />
-                <TableColumn fx:id="cryptoCurrencyColumn" sortable="false" text="Cryptocurrency" />
-                <TableColumn fx:id="fiatValueColumn" sortable="false" text="FIAT value" />
-                <TableColumn fx:id="fiatCurrencyColumn" sortable="false" text="FIAT currency" />
-                <TableColumn fx:id="poolIDColumn" sortable="false" text="Pool Pair" />
-                <TableColumn fx:id="blockHeightColumn" sortable="false" text="Block Height" />
-                <TableColumn fx:id="blockHashColumn" sortable="false" text="Block Hash" />
-                <TableColumn fx:id="ownerColumn" sortable="false" text="Owner" />
-                <TableColumn fx:id="transactionColumn" sortable="false" text="Transaction Hash" />
+                <TableColumn fx:id="blockTimeColumn" sortable="true" text="Date" />
+                <TableColumn fx:id="typeColumn" sortable="true" text="Operation" />
+                <TableColumn fx:id="cryptoValueColumn" sortable="true" text="Amount" />
+                <TableColumn fx:id="cryptoCurrencyColumn" sortable="true" text="Cryptocurrency" />
+                <TableColumn fx:id="fiatValueColumn" sortable="true" text="FIAT value" />
+                <TableColumn fx:id="fiatCurrencyColumn" sortable="true" text="FIAT currency" />
+                <TableColumn fx:id="poolIDColumn" sortable="true" text="Pool Pair" />
+                <TableColumn fx:id="blockHeightColumn" sortable="true" text="Block Height" />
+                <TableColumn fx:id="blockHashColumn" sortable="true" text="Block Hash" />
+                <TableColumn fx:id="ownerColumn" sortable="true" text="Owner" />
+                <TableColumn fx:id="transactionColumn" sortable="true" text="Transaction Hash" />
             </columns>
         </TableView>
         <padding>
@@ -557,11 +538,11 @@
                                                                   <ComboBox fx:id="cmbPlotCurrencyCom" prefHeight="29.0" prefWidth="143.0" GridPane.columnIndex="3" />
                                                               </children>
                                                           </GridPane>
-                                                          <SplitPane dividerPositions="0.5012406947890818" layoutX="2.0" layoutY="162.0" orientation="VERTICAL" prefHeight="457.0" prefWidth="659.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="172.0">
+                                                          <SplitPane dividerPositions="0.5" layoutX="2.0" layoutY="162.0" orientation="VERTICAL" prefHeight="457.0" prefWidth="659.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="172.0">
                                                               <items>
                                                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="600.0">
                                                                       <children>
-                                                                          <LineChart fx:id="plotCommissions1" prefHeight="249.0" prefWidth="592.0" AnchorPane.bottomAnchor="-4.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="0.0">
+                                                                          <LineChart fx:id="plotCommissions1" prefHeight="249.0" prefWidth="592.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                               <xAxis>
                                                                                   <CategoryAxis animated="false" side="BOTTOM" />
                                                                               </xAxis>
@@ -573,7 +554,7 @@
                                                                   </AnchorPane>
                                                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="220.0" prefWidth="571.0">
                                                                       <children>
-                                                                          <LineChart fx:id="plotCommissions2" prefHeight="235.0" prefWidth="585.0" AnchorPane.bottomAnchor="-13.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="0.0">
+                                                                          <LineChart fx:id="plotCommissions2" prefHeight="235.0" prefWidth="585.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                               <xAxis>
                                                                                   <CategoryAxis animated="false" side="BOTTOM" />
                                                                               </xAxis>

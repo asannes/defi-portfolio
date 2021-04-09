@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -15,10 +16,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import portfolio.Main;
-import portfolio.models.AddressModel;
-import portfolio.models.BalanceModel;
-import portfolio.models.PortfolioModel;
-import portfolio.models.TransactionModel;
+import portfolio.models.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,6 +49,7 @@ public class TransactionController {
     private CoinPriceController coinPriceController = CoinPriceController.getInstance();
     private String strTransactionData = SettingsController.getInstance().DEFI_PORTFOLIO_HOME + SettingsController.getInstance().strTransactionData;
     private ObservableList<TransactionModel> transactionList;
+    private ObservableList<TransactionModel> dailyTransactionList;
     private int localBlockCount;
     private final TreeMap<String, TreeMap<String, PortfolioModel>> portfolioList = new TreeMap<>();
     private List<BalanceModel> balanceList = new ArrayList<>();
@@ -63,7 +62,7 @@ public class TransactionController {
         if (classSingleton) {
             classSingleton = false;
             this.transactionList = getLocalTransactionList();
-            this.localBlockCount = getLocalBlockCount();
+            this.transactionList.sort(Comparator.comparing(TransactionModel::getBlockTime));
             getLocalBalanceList();
         }
     }
@@ -247,6 +246,7 @@ public class TransactionController {
             int blockCount = Integer.parseInt(getBlockCountRpc());
             int blockDepth = 10000;
             int restBlockCount = blockCount + blockDepth + 1;
+            this.settingsController.logger.warning("Start Sync from "+blockCount+" to "+depth);
             for (int i = 0; i < Math.ceil(depth / blockDepth); i = i + 1) {
                 if (this.settingsController.getPlatform().equals("mac")) {
                     try {
@@ -259,6 +259,9 @@ public class TransactionController {
                 } else {
                     this.jl.setText(this.settingsController.translationList.getValue().get("UpdateData").toString() + Math.ceil((((double) (i) * blockDepth) / (double) depth) * 100) + "%");
                 }
+
+
+                this.settingsController.logger.warning(Math.ceil((((double) (i) * blockDepth) / (double) depth) * 100) + "%");
                 if (SettingsController.getInstance().selectedSource.getValue().equals("All Wallets")) {
                     jsonObject = getRpcResponse("{\"method\":\"listaccounthistory\",\"params\":[\"all\", {\"maxBlockHeight\":" + (blockCount - (i * blockDepth) - i) + ",\"depth\":" + blockDepth + ",\"no_rewards\":" + false + ",\"limit\":" + blockDepth * 2000 + "}]}");
                 } else {
@@ -276,10 +279,13 @@ public class TransactionController {
                         }
                     }
                 }
+                this.settingsController.logger.warning("Prepared till:"+(blockCount - i * blockDepth));
                 restBlockCount = blockCount - i * blockDepth;
             }
 
             restBlockCount = restBlockCount - blockDepth;
+
+            this.settingsController.logger.warning("Get rest:"+restBlockCount);
             if (SettingsController.getInstance().selectedSource.getValue().equals("All Wallets")) {
                 jsonObject = getRpcResponse("{\"method\":\"listaccounthistory\",\"params\":[\"all\", {\"maxBlockHeight\":" + (restBlockCount - 1) + ",\"depth\":" + depth % blockDepth + ",\"no_rewards\":" + false + ",\"limit\":" + (depth % blockDepth) * 2000 + "}]}");
             } else {
@@ -296,6 +302,9 @@ public class TransactionController {
                     }
                 }
             }
+
+            this.settingsController.logger.warning("Finished Sync");
+
         } catch (Exception e) {
             this.settingsController.logger.warning("Exception occured: " + e.toString());
         }
@@ -392,7 +401,7 @@ public class TransactionController {
 
     }
 
-    public  void getLocalBalanceList() {
+    public void getLocalBalanceList() {
 
         File strPortfolioData = new File(this.settingsController.PORTFOLIO_FILE_PATH);
 
@@ -434,23 +443,43 @@ public class TransactionController {
                 String line = reader.readLine();
 
                 while (line != null) {
+
                     String[] transactionSplit = line.split(";");
                     TransactionModel transAction = new TransactionModel(Long.parseLong(transactionSplit[0]), transactionSplit[1], transactionSplit[2], transactionSplit[3], transactionSplit[4], Integer.parseInt(transactionSplit[5]), transactionSplit[6], transactionSplit[7], this);
-                    transactionList.add(transAction);
 
                     if (transAction.typeProperty.getValue().equals("Rewards") | transAction.typeProperty.getValue().equals("Commission")) {
+                        //transactionList.add(transAction);
                         addToPortfolioModel(transAction);
+                    } else {
+                        transactionList.add(transAction);
                     }
-
+                    this.localBlockCount = transAction.blockHeightProperty.getValue();
                     line = reader.readLine();
                 }
 
                 reader.close();
+
+                for (String poolPair : this.settingsController.cryptoCurrencies) {
+                    if (this.portfolioList.containsKey(poolPair + "-Daily")) {
+                        for (HashMap.Entry<String, PortfolioModel> entry : this.portfolioList.get(poolPair + "-Daily").entrySet()) {
+                            try {
+                                Date date = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").parse(entry.getValue().getDateValue() + "-23:59:59");
+                                transactionList.add(new TransactionModel(new Timestamp(date.getTime()).getTime() / 1000L, "-", "Rewards", entry.getValue().getCoinRewards1Value() + "@" + entry.getValue().getPoolPairValue().split("-")[1], "-", 0, getIdFromPoolPair(entry.getValue().getPoolPairValue()), "-", this));
+                                transactionList.add(new TransactionModel(new Timestamp(date.getTime()).getTime() / 1000L, "-", "Commission", entry.getValue().getCoinCommissions1Value() + "@" + entry.getValue().getPoolPairValue().split("-")[1], "-", 0, getIdFromPoolPair(entry.getValue().getPoolPairValue()), "-", this));
+                                transactionList.add(new TransactionModel(new Timestamp(date.getTime()).getTime() / 1000L, "-", "Commission", entry.getValue().getCoinCommissions2Value() + "@" + entry.getValue().getPoolPairValue().split("-")[0], "-", 0, getIdFromPoolPair(entry.getValue().getPoolPairValue()), "-", this));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
                 return FXCollections.observableArrayList(transactionList);
             } catch (IOException e) {
                 this.settingsController.logger.warning("Exception occured: " + e.toString());
             }
-        }        return FXCollections.observableArrayList(transactionList);
+        }
+        return FXCollections.observableArrayList(transactionList);
     }
 
     public String getTokenFromID(String id) {
@@ -523,6 +552,8 @@ public class TransactionController {
         }
     }
 
+
+
     public String getDate(String blockTime, String intervall) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(Long.parseLong(blockTime) * 1000L);
@@ -532,7 +563,7 @@ public class TransactionController {
         int day = cal.get(Calendar.DAY_OF_MONTH);
         String date = "";
 
-        if(SettingsController.getInstance().translationList.getValue().get("Daily").equals(intervall)|intervall.equals("Daily")){
+        if (SettingsController.getInstance().translationList.getValue().get("Daily").equals(intervall) | intervall.equals("Daily")) {
             String monthAdapted = Integer.toString(month);
             if (month < 10) {
                 monthAdapted = "0" + month;
@@ -544,7 +575,7 @@ public class TransactionController {
             }
         }
 
-        if(SettingsController.getInstance().translationList.getValue().get("Weekly").equals(intervall)|intervall.equals("Weekly")){
+        if (SettingsController.getInstance().translationList.getValue().get("Weekly").equals(intervall) | intervall.equals("Weekly")) {
             int correct = 0;
             if (month == 1 && (day == 1 || day == 2 || day == 3)) {
                 correct = 1;
@@ -556,7 +587,7 @@ public class TransactionController {
             }
         }
 
-        if(SettingsController.getInstance().translationList.getValue().get("Monthly").equals(intervall)|intervall.equals("Monthly")){
+        if (SettingsController.getInstance().translationList.getValue().get("Monthly").equals(intervall) | intervall.equals("Monthly")) {
             if (month < 10) {
                 date = year + "-0" + month;
             } else {
@@ -564,7 +595,7 @@ public class TransactionController {
             }
         }
 
-        if(SettingsController.getInstance().translationList.getValue().get("Yearly").equals(intervall)|intervall.equals("Yearly")){
+        if (SettingsController.getInstance().translationList.getValue().get("Yearly").equals(intervall) | intervall.equals("Yearly")) {
 
             date = Integer.toString(year);
         }
@@ -584,15 +615,7 @@ public class TransactionController {
     }
 
     public int getLocalBlockCount() {
-        if (!new File(SettingsController.getInstance().DEFI_PORTFOLIO_HOME + "/transactionData.portfolio").exists()) {
-            return 0;
-        }
-        if (transactionList.size() > 0) {
-
-            return transactionList.get(transactionList.size() - 1).blockHeightProperty.getValue();
-        } else {
-            return 0;
-        }
+        return this.localBlockCount;
     }
 
     public boolean updateTransactionData(int depth) {
@@ -600,16 +623,16 @@ public class TransactionController {
         List<TransactionModel> transactionListNew = getListAccountHistoryRpc(depth);
         List<TransactionModel> updateTransactionList = new ArrayList<>();
         int counter = 0;
+
         for (int i = transactionListNew.size() - 1; i >= 0; i--) {
             if (transactionListNew.get(i).blockHeightProperty.getValue() > this.localBlockCount) {
-                this.transactionList.add(transactionListNew.get(i));
                 updateTransactionList.add(transactionListNew.get(i));
-                //if (!transactionListNew.get(i).getTypeValue().equals("UtxosToAccount") | !transactionListNew.get(i).getTypeValue().equals("AccountToUtxos"))
-                // addBalanceModel(transactionListNew.get(i));
-                //
-                if (transactionListNew.get(i).typeProperty.getValue().equals("Rewards") | transactionListNew.get(i).typeProperty.getValue().equals("Commission"))
-                    addToPortfolioModel(transactionListNew.get(i));
 
+                if (transactionListNew.get(i).typeProperty.getValue().equals("Rewards") | transactionListNew.get(i).typeProperty.getValue().equals("Commission")) {
+                    addToPortfolioModel(transactionListNew.get(i));
+                } else {
+                    this.transactionList.add(transactionListNew.get(i));
+                }
                 if (this.settingsController.getPlatform().equals("mac")) {
                     try {
                         if (counter > 1000) {
@@ -627,6 +650,7 @@ public class TransactionController {
                 counter++;
             }
         }
+
         int i = 1;
         if (updateTransactionList.size() > 0) {
             try {
@@ -665,22 +689,51 @@ public class TransactionController {
                     }
                     i++;
                     writer.write(sb.toString());
+                    this.localBlockCount = transactionModel.blockHeightProperty.getValue();
                     sb = null;
                 }
                 writer.close();
-                if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
+
+                this.transactionList.removeIf(l -> l.typeProperty.getValue().equals("Rewards")| l.typeProperty.getValue().equals("Commission"));
+
+                for (String poolPair : this.settingsController.cryptoCurrencies) {
+                    if (this.portfolioList.containsKey(poolPair + "-Daily")) {
+                        for (HashMap.Entry<String, PortfolioModel> entry : this.portfolioList.get(poolPair + "-Daily").entrySet()) {
+                            try {
+                                Date date = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").parse(entry.getValue().getDateValue() + "-23:59:59");
+                                transactionList.add(new TransactionModel(new Timestamp(date.getTime()).getTime() / 1000L, "-", "Rewards", entry.getValue().getCoinRewards1Value() + "@" + entry.getValue().getPoolPairValue().split("-")[1], "-", 0, getIdFromPoolPair(entry.getValue().getPoolPairValue()), "-", this));
+                                transactionList.add(new TransactionModel(new Timestamp(date.getTime()).getTime() / 1000L, "-", "Commission", entry.getValue().getCoinCommissions1Value() + "@" + entry.getValue().getPoolPairValue().split("-")[1], "-", 0, getIdFromPoolPair(entry.getValue().getPoolPairValue()), "-", this));
+                                transactionList.add(new TransactionModel(new Timestamp(date.getTime()).getTime() / 1000L, "-", "Commission", entry.getValue().getCoinCommissions2Value() + "@" + entry.getValue().getPoolPairValue().split("-")[0], "-", 0, getIdFromPoolPair(entry.getValue().getPoolPairValue()), "-", this));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
+                transactionList.sort(Comparator.comparing(TransactionModel::getBlockTime));
                 this.localBlockCount = this.transactionList.get(this.transactionList.size() - 1).blockHeightProperty.getValue();
+
+                if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
+                File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
+                if (file.exists()) file.delete();
                 stopServer();
                 transactionListNew = null;
                 updateTransactionList = null;
                 return true;
             } catch (IOException e) {
                 this.settingsController.logger.warning("Exception occured: " + e.toString());
+                if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
+                File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
+                if (file.exists()) file.delete();
+                stopServer();
             }
-        }else{
+        } else {
             this.showNoDataWindow();
         }
         if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
+        File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
+        if (file.exists()) file.delete();
         stopServer();
         return false;
 
@@ -788,7 +841,7 @@ public class TransactionController {
         List<BalanceModel> balanceModelList = new ArrayList<>();
         JSONArray jsonArray = getTokenBalances();
         CoinGeckoApiClient client = new CoinGeckoApiClientImpl();
-        try{
+        try {
 
             Double dfiCoin = Double.parseDouble(getBalance());
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -842,8 +895,8 @@ public class TransactionController {
                 this.balanceList = balanceModelList;
             }
 
-        }catch(Exception e){
-            this.settingsController.logger.warning("Exception occured: " +e.toString());
+        } catch (Exception e) {
+            this.settingsController.logger.warning("Exception occured: " + e.toString());
         }
     }
 
@@ -921,7 +974,7 @@ public class TransactionController {
         return amountAndCoin.split("@");
     }
 
-    public void showNoDataWindow(){
+    public void showNoDataWindow() {
         Parent root = null;
         try {
             root = FXMLLoader.load(getClass().getResource("../views/NoDataView.fxml"));
@@ -978,7 +1031,7 @@ public class TransactionController {
             MainViewController.getInstance().transactionController.updateJFrame();
             MainViewController.getInstance().transactionController.jl.setText(MainViewController.getInstance().settingsController.translationList.getValue().get("ConnectNode").toString());
         }
-        checkTimer.scheduleAtFixedRate(new CheckConnection(MainViewController.getInstance()), 0, 30000);
+        checkTimer.scheduleAtFixedRate(new CheckConnection(MainViewController.getInstance()), 0, 10000);
     }
 
 

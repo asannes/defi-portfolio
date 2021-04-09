@@ -40,7 +40,7 @@ public class ExportService {
 
         for (TableColumn column : this.mainViewController.mainView.rawDataTable.getColumns()
         ) {
-            sb.append(column.getText()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
+            sb.append(column.getId()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
         }
 
         sb.setLength(sb.length() - 1);
@@ -85,7 +85,7 @@ public class ExportService {
 
         for (TableColumn column : this.mainViewController.mainView.rawDataTable.getColumns()
         ) {
-            sb.append(column.getText()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
+            sb.append(column.getId()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
         }
 
         sb.setLength(sb.length() - 1);
@@ -188,9 +188,9 @@ public class ExportService {
             if (this.mainViewController.settingsController.selectedDecimal.getValue().equals(".")) {
                 localeDecimal = Locale.US;
             }
-            switch (mainView.tabPane.getSelectionModel().getSelectedItem().getText()) {
+            switch (mainView.tabPane.getSelectionModel().getSelectedItem().getId()) {
                 case "Portfolio":
-                    sb.append((mainView.plotTable.getColumns().get(0).getText() + "," + mainView.plotTable.getColumns().get(2).getText() + "," + mainView.plotTable.getColumns().get(2).getText() + "," + mainView.plotTable.getColumns().get(9).getText()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(9).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
                     for (PoolPairModel poolPairModel : poolPairModelList) {
                         sb.append(poolPairModel.getBlockTime().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
                         sb.append(poolPairModel.getPoolPair().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
@@ -200,7 +200,7 @@ public class ExportService {
                     break;
                 case "Overview":
                 case "Übersicht":
-                    sb.append((mainView.plotTable.getColumns().get(0).getText() + "," + mainView.plotTable.getColumns().get(1).getText() + "," + mainView.plotTable.getColumns().get(2).getText() + "," + mainView.plotTable.getColumns().get(3).getText() + "," + mainView.plotTable.getColumns().get(4).getText()+ "," + mainView.plotTable.getColumns().get(5).getText()+ "," + mainView.plotTable.getColumns().get(6).getText()+ "," + mainView.plotTable.getColumns().get(7).getText()+ "," + mainView.plotTable.getColumns().get(8).getText()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId() + "," + mainView.plotTable.getColumns().get(4).getId()+ "," + mainView.plotTable.getColumns().get(5).getId()+ "," + mainView.plotTable.getColumns().get(6).getId()+ "," + mainView.plotTable.getColumns().get(7).getId()+ "," + mainView.plotTable.getColumns().get(8).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
                     for (PoolPairModel poolPairModel : poolPairModelList) {
                         sb.append(poolPairModel.getBlockTime().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
                         sb.append(poolPairModel.getPoolPair().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
@@ -216,7 +216,7 @@ public class ExportService {
                     break;
                 case "Kommissionen":
                 case "Commissions":
-                    sb.append((mainView.plotTable.getColumns().get(0).getText() + "," + mainView.plotTable.getColumns().get(1).getText() + "," + mainView.plotTable.getColumns().get(2).getText() + "," + mainView.plotTable.getColumns().get(3).getText() + "," + mainView.plotTable.getColumns().get(4).getText()+ "," + mainView.plotTable.getColumns().get(5).getText()+ "," + mainView.plotTable.getColumns().get(8).getText()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId() + "," + mainView.plotTable.getColumns().get(4).getId()+ "," + mainView.plotTable.getColumns().get(5).getId()+ "," + mainView.plotTable.getColumns().get(8).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
                     for (PoolPairModel poolPairModel : poolPairModelList) {
                         sb.append(poolPairModel.getBlockTime().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
                         sb.append(poolPairModel.getPoolPair().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
@@ -230,7 +230,7 @@ public class ExportService {
                     break;
                 case "Rewards":
                 case "Belohnungen":
-                    sb.append((mainView.plotTable.getColumns().get(0).getText() + "," + mainView.plotTable.getColumns().get(1).getText() + "," + mainView.plotTable.getColumns().get(2).getText() + "," + mainView.plotTable.getColumns().get(3).getText()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
                     for (PoolPairModel poolPairModel : poolPairModelList) {
                         sb.append(poolPairModel.getBlockTime().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
                         sb.append(poolPairModel.getPoolPair().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());

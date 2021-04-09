@@ -792,8 +792,11 @@ public class MainView implements Initializable {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
+                    setText(null);
                 } else {
                     TransactionModel tempParam = rawDataTable.getItems().get(getIndex());
+
+                    if(!tempParam.blockHashProperty.getValue().equals("-")){
                     hyperlink.setText(item);
                     hyperlink.setOnAction((event) -> {
                         try {
@@ -812,8 +815,12 @@ public class MainView implements Initializable {
                         }
                     });
                     setGraphic(hyperlink);
+                    setText(null);
+                    }
+                    else{
+                        setText("-");
+                    }
                 }
-                setText(null);
             }
         };
         blockHashColumn.setCellFactory(cellFactory0);
@@ -829,8 +836,12 @@ public class MainView implements Initializable {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
+                    setText(null);
                 } else {
                     TransactionModel tempParam = rawDataTable.getItems().get(getIndex());
+
+                    if(!tempParam.ownerProperty.getValue().equals("-")){
+
                     hyperlink.setText(item);
                     hyperlink.setOnAction((event) -> {
                         try {
@@ -849,8 +860,12 @@ public class MainView implements Initializable {
                         }
                     });
                     setGraphic(hyperlink);
+                    setText(null);
+                    }
+                    else{
+                        setText("-");
+                    }
                 }
-                setText(null);
             }
         };
         ownerColumn.setCellFactory(cellFactory1);
@@ -865,8 +880,13 @@ public class MainView implements Initializable {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
+                    setText(null);
                 } else {
                     TransactionModel tempParam = rawDataTable.getItems().get(getIndex());
+
+                    if(!tempParam.blockHeightProperty.getValue().equals(0)){
+
+
                     hyperlink.setText(item.toString());
                     hyperlink.setOnAction((event) -> {
                         try {
@@ -885,8 +905,14 @@ public class MainView implements Initializable {
                         }
                     });
                     setGraphic(hyperlink);
+                    setText(null);
+                    }
+                    else{
+                        setText("-");
+                    }
+
                 }
-                setText(null);
+
             }
         };
         blockHeightColumn.setCellFactory(cellFactory2);
@@ -905,7 +931,7 @@ public class MainView implements Initializable {
                 } else {
                     TransactionModel tempParam = rawDataTable.getItems().get(getIndex());
 
-                    if (tempParam.txIDProperty.getValue().equals("\"\"")) {
+                    if (tempParam.txIDProperty.getValue().equals("\"\"")| tempParam.txIDProperty.getValue().equals("-")) {
                         setText("-");
                         setGraphic(null);
                     } else {
