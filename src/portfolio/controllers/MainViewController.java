@@ -114,7 +114,7 @@ public class MainViewController {
         if (withHeaders) {
             for (TableColumn column : this.mainView.rawDataTable.getColumns()
             ) {
-                sb.append(column.getText()).append(this.settingsController.selectedSeperator.getValue());
+                sb.append(column.getId()).append(this.settingsController.selectedSeperator.getValue());
             }
             sb.setLength(sb.length() - 1);
             sb.append("\n");
@@ -147,21 +147,18 @@ public class MainViewController {
         }
 
         if (withHeaders) {
-            switch (this.mainView.tabPane.getSelectionModel().getSelectedItem().getText()) {
+            switch (this.mainView.tabPane.getSelectionModel().getSelectedItem().getId()) {
                 case "Portfolio":
-                    sb.append((this.mainView.plotTable.getColumns().get(0).getText() + "," + this.mainView.plotTable.getColumns().get(2).getText() + "," + this.mainView.plotTable.getColumns().get(9).getText()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((this.mainView.plotTable.getColumns().get(0).getId() + "," + this.mainView.plotTable.getColumns().get(2).getId() + "," + this.mainView.plotTable.getColumns().get(9).getId()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
                     break;
                 case "Overview":
-                case "Übersicht":
-                    sb.append((this.mainView.plotTable.getColumns().get(0).getText() + "," + this.mainView.plotTable.getColumns().get(1).getText() + "," + this.mainView.plotTable.getColumns().get(2).getText() + "," + this.mainView.plotTable.getColumns().get(3).getText() + "," + this.mainView.plotTable.getColumns().get(4).getText() + "," + this.mainView.plotTable.getColumns().get(5).getText() + "," + this.mainView.plotTable.getColumns().get(6).getText() + "," + this.mainView.plotTable.getColumns().get(7).getText() + "," + this.mainView.plotTable.getColumns().get(8).getText()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((this.mainView.plotTable.getColumns().get(0).getId() + "," + this.mainView.plotTable.getColumns().get(1).getId() + "," + this.mainView.plotTable.getColumns().get(2).getId() + "," + this.mainView.plotTable.getColumns().get(3).getId() + "," + this.mainView.plotTable.getColumns().get(4).getId() + "," + this.mainView.plotTable.getColumns().get(5).getId() + "," + this.mainView.plotTable.getColumns().get(6).getId() + "," + this.mainView.plotTable.getColumns().get(7).getId() + "," + this.mainView.plotTable.getColumns().get(8).getId()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
                     break;
-                case "Kommissionen":
                 case "Commissions":
-                    sb.append((this.mainView.plotTable.getColumns().get(0).getText() + "," + this.mainView.plotTable.getColumns().get(1).getText() + "," + this.mainView.plotTable.getColumns().get(2).getText() + "," + this.mainView.plotTable.getColumns().get(3).getText() + "," + this.mainView.plotTable.getColumns().get(4).getText() + "," + this.mainView.plotTable.getColumns().get(5).getText() + "," + this.mainView.plotTable.getColumns().get(8).getText()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((this.mainView.plotTable.getColumns().get(0).getId() + "," + this.mainView.plotTable.getColumns().get(1).getId() + "," + this.mainView.plotTable.getColumns().get(2).getId() + "," + this.mainView.plotTable.getColumns().get(3).getId() + "," + this.mainView.plotTable.getColumns().get(4).getId() + "," + this.mainView.plotTable.getColumns().get(5).getId() + "," + this.mainView.plotTable.getColumns().get(8).getId()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
                     break;
                 case "Rewards":
-                case "Belohnungen":
-                    sb.append((this.mainView.plotTable.getColumns().get(0).getText() + "," + this.mainView.plotTable.getColumns().get(1).getText() + "," + this.mainView.plotTable.getColumns().get(2).getText() + "," + this.mainView.plotTable.getColumns().get(3).getText()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((this.mainView.plotTable.getColumns().get(0).getId() + "," + this.mainView.plotTable.getColumns().get(1).getId() + "," + this.mainView.plotTable.getColumns().get(2).getId() + "," + this.mainView.plotTable.getColumns().get(3).getId()).replace(",", this.settingsController.selectedSeperator.getValue())).append("\n");
                     break;
                 default:
                     break;
@@ -170,7 +167,7 @@ public class MainViewController {
 
         for (PoolPairModel poolPair : list
         ) {
-            switch (this.mainView.tabPane.getSelectionModel().getSelectedItem().getText()) {
+            switch (this.mainView.tabPane.getSelectionModel().getSelectedItem().getId()) {
                 case "Portfolio":
                     sb.append(poolPair.getBlockTime().getValue()).append(this.settingsController.selectedSeperator.getValue());
                     sb.append(poolPair.getPoolPair().getValue()).append(this.settingsController.selectedSeperator.getValue());
@@ -178,7 +175,6 @@ public class MainViewController {
                     sb.append("\n");
                     break;
                 case "Overview":
-                case "Übersicht":
                     sb.append(poolPair.getBlockTime().getValue()).append(this.settingsController.selectedSeperator.getValue());
                     sb.append(poolPair.getPoolPair().getValue()).append(this.settingsController.selectedSeperator.getValue());
                     sb.append(String.format(localeDecimal, "%.8f", poolPair.getCryptoValue1().getValue())).append(this.settingsController.selectedSeperator.getValue());
@@ -763,7 +759,7 @@ public class MainViewController {
         }
         Date date = new Date(System.currentTimeMillis());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        fileChooser.setInitialFileName(dateFormat.format(date) + "_Portfolio_Export_" + this.mainView.tabPane.getSelectionModel().getSelectedItem().getText());
+        fileChooser.setInitialFileName(dateFormat.format(date) + "_Portfolio_Export_" + this.mainView.tabPane.getSelectionModel().getSelectedItem().getId());
         File selectedFile = fileChooser.showSaveDialog(new Stage());
 
         if (selectedFile != null) {
