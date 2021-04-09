@@ -97,7 +97,8 @@ public class TransactionController {
                         defidProcess = Runtime.getRuntime().exec("/usr/bin/open -a Terminal " + System.getProperty("user.dir") + "/PortfolioData/./" + "defi.sh");
                         break;
                     case "win":
-                        defidProcess = Runtime.getRuntime().exec("cmd /c start " + this.settingsController.BINARY_FILE_PATH + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH); // + " -conf=" + this.settingsController.CONFIG_FILE_PATH);
+                        String[] commands = {"cmd", "/c", "start", "\"Synchronizing blockchain\"",this.settingsController.BINARY_FILE_PATH,"-conf="+ this.settingsController.PORTFOLIO_CONFIG_FILE_PATH};
+                        defidProcess=Runtime.getRuntime().exec(commands);
                         break;
                     case "linux":
                         defidProcess = Runtime.getRuntime().exec("/usr/bin/x-terminal-emulator -e " + this.settingsController.BINARY_FILE_PATH + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH);
