@@ -221,8 +221,10 @@ public class MainViewController {
             int depth = Integer.parseInt(this.transactionController.getBlockCount()) - this.transactionController.getLocalBlockCount();
             return transactionController.updateTransactionData(depth);
         } else {
-            return transactionController.updateTransactionData(Integer.parseInt(transactionController.getBlockCount())); // - this.transactionController.getAccountHistoryCountRpc());
+            return transactionController.updateTransactionData(Integer.parseInt(transactionController.getBlockCount()));
         }
+
+
     }
 
     public void btnUpdateDatabasePressed() {
@@ -230,7 +232,7 @@ public class MainViewController {
         if (this.updateSingleton) {
             this.bDataBase.setValue(this.updateSingleton = false);
             if (updateTransactionData()) {
-
+                this.settingsController.logger.warning("Update Data successed");
                 int localBlockCount = this.transactionController.getLocalBlockCount();
                 int blockCount = Integer.parseInt(this.transactionController.getBlockCount());
                 this.strCurrentBlockLocally.set(Integer.toString(localBlockCount));
@@ -244,8 +246,6 @@ public class MainViewController {
                 this.settingsController.lastUpdate.setValue(dateFormat.format(date));
                 this.settingsController.saveSettings();
             }
-            File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
-            if (file.exists()) file.delete();
         }
         this.bDataBase.setValue(this.updateSingleton = true);
     }

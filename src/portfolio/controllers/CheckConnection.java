@@ -29,12 +29,13 @@ public class CheckConnection extends TimerTask {
                                 if (file.exists()) file.delete();
                             }
                         } else {
-
                             if (!this.mainViewController.settingsController.selectedLaunchSync) {
+                                SettingsController.getInstance().logger.warning("LaunchSync = true");
                                 SettingsController.getInstance().runCheckTimer = false;
                                 SettingsController.getInstance().errorBouncer = 0;
                                 this.mainViewController.btnUpdateDatabasePressed();
                                 this.mainViewController.plotUpdate(this.mainViewController.mainView.tabPane.getSelectionModel().getSelectedItem().getId());
+                                SettingsController.getInstance().logger.warning("Plot Update");
                                 File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
                                 if (file.exists()) file.delete();
                             }else{

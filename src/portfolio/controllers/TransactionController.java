@@ -97,7 +97,7 @@ public class TransactionController {
                         defidProcess = Runtime.getRuntime().exec("/usr/bin/open -a Terminal " + System.getProperty("user.dir") + "/PortfolioData/./" + "defi.sh");
                         break;
                     case "win":
-                        defidProcess = Runtime.getRuntime().exec("cmd /c start " + this.settingsController.BINARY_FILE_PATH + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH); // + " -conf=" + this.settingsController.CONFIG_FILE_PATH);
+                        defidProcess = Runtime.getRuntime().exec("cmd /c start " + System.getProperty("user.dir")+"/PortfolioData/test defi/ " + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH); // + " -conf=" + this.settingsController.CONFIG_FILE_PATH);
                         break;
                     case "linux":
                         defidProcess = Runtime.getRuntime().exec("/usr/bin/x-terminal-emulator -e " + this.settingsController.BINARY_FILE_PATH + " -conf=" + this.settingsController.PORTFOLIO_CONFIG_FILE_PATH);
@@ -243,9 +243,12 @@ public class TransactionController {
         List<TransactionModel> transactionList = new ArrayList<>();
 
         try {
+
             int blockCount = Integer.parseInt(getBlockCountRpc());
             int blockDepth = 10000;
             int restBlockCount = blockCount + blockDepth + 1;
+
+            this.settingsController.logger.warning("Start Sync with depth: "+depth+ " and blockcount "+blockCount);
             for (int i = 0; i < Math.ceil(depth / blockDepth); i = i + 1) {
                 if (this.settingsController.getPlatform().equals("mac")) {
                     try {
@@ -258,6 +261,9 @@ public class TransactionController {
                 } else {
                     this.jl.setText(this.settingsController.translationList.getValue().get("UpdateData").toString() + Math.ceil((((double) (i) * blockDepth) / (double) depth) * 100) + "%");
                 }
+
+                this.settingsController.logger.warning(this.settingsController.translationList.getValue().get("UpdateData").toString() + Math.ceil((((double) (i) * blockDepth) / (double) depth) * 100) + "%");
+
                 if (SettingsController.getInstance().selectedSource.getValue().equals("All Wallets")) {
                     jsonObject = getRpcResponse("{\"method\":\"listaccounthistory\",\"params\":[\"all\", {\"maxBlockHeight\":" + (blockCount - (i * blockDepth) - i) + ",\"depth\":" + blockDepth + ",\"no_rewards\":" + false + ",\"limit\":" + blockDepth * 2000 + "}]}");
                 } else {
@@ -279,6 +285,8 @@ public class TransactionController {
             }
 
             restBlockCount = restBlockCount - blockDepth;
+
+            this.settingsController.logger.warning("rest: "+restBlockCount);
             if (SettingsController.getInstance().selectedSource.getValue().equals("All Wallets")) {
                 jsonObject = getRpcResponse("{\"method\":\"listaccounthistory\",\"params\":[\"all\", {\"maxBlockHeight\":" + (restBlockCount - 1) + ",\"depth\":" + depth % blockDepth + ",\"no_rewards\":" + false + ",\"limit\":" + (depth % blockDepth) * 2000 + "}]}");
             } else {
@@ -295,6 +303,8 @@ public class TransactionController {
                     }
                 }
             }
+
+            this.settingsController.logger.warning("Finished");
         } catch (Exception e) {
             this.settingsController.logger.warning("Exception occured: " + e.toString());
         }
@@ -595,10 +605,12 @@ public class TransactionController {
     }
 
     public boolean updateTransactionData(int depth) {
-
+        this.settingsController.logger.warning("Start Update");
         List<TransactionModel> transactionListNew = getListAccountHistoryRpc(depth);
         List<TransactionModel> updateTransactionList = new ArrayList<>();
         int counter = 0;
+
+        this.settingsController.logger.warning("Synch Finished List size: "+transactionListNew.size() );
         for (int i = transactionListNew.size() - 1; i >= 0; i--) {
             if (transactionListNew.get(i).blockHeightProperty.getValue() > this.localBlockCount) {
                 this.transactionList.add(transactionListNew.get(i));
@@ -627,6 +639,8 @@ public class TransactionController {
             }
         }
         int i = 1;
+
+        this.settingsController.logger.warning("Update Listsize: "+updateTransactionList.size() );
         if (updateTransactionList.size() > 0) {
             try {
                 PrintWriter writer = new PrintWriter(new FileWriter(this.strTransactionData, true));
@@ -667,6 +681,8 @@ public class TransactionController {
                     sb = null;
                 }
                 writer.close();
+                this.settingsController.logger.warning("Writer closed");
+
                 if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
                 this.localBlockCount = this.transactionList.get(this.transactionList.size() - 1).blockHeightProperty.getValue();
                 stopServer();
