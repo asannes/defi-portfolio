@@ -1,8 +1,4 @@
 package portfolio.controllers;
-
-import com.litesoftwares.coingecko.CoinGeckoApiClient;
-import com.litesoftwares.coingecko.impl.CoinGeckoApiClientImpl;
-import com.sun.javafx.geom.Arc2D;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +15,6 @@ import portfolio.models.AddressModel;
 import portfolio.models.BalanceModel;
 import portfolio.models.PortfolioModel;
 import portfolio.models.TransactionModel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -800,9 +795,8 @@ public class TransactionController {
                     Double token1 = Math.sqrt(poolRatio * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]));
                     Double token2 = Math.sqrt(Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) * Double.parseDouble(jsonArray.get(i).toString().split("@")[0]) / poolRatio);
                     try {
-                        balanceModelList.add(new BalanceModel(tokenName.split("-")[0],coinPriceController.getPriceFromTimeStamp( tokenName.split("-")[0] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis())* token1, token1,
-                                tokenName.split("-")[1], coinPriceController.getPriceFromTimeStamp(tokenName.split("-")[1] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis()) * token2, token2, Double.parseDouble(jsonArray.get(i).toString().split("@")[0])));
-                    } catch (Exception e) {
+                        balanceModelList.add(new BalanceModel(tokenName.split("-")[0],coinPriceController.getPriceFromTimeStamp( tokenName.split("-")[0] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis())* token1, token1,                                tokenName.split("-")[1], coinPriceController.getPriceFromTimeStamp(tokenName.split("-")[1] + SettingsController.getInstance().selectedFiatCurrency.getValue(), System.currentTimeMillis()) * token2, token2, Double.parseDouble(jsonArray.get(i).toString().split("@")[0])));
+                           } catch (Exception e) {
                         this.settingsController.logger.warning("Exception occured: " + e.toString());
                     }
                 } else {
