@@ -232,7 +232,6 @@ public class MainViewController {
         if (this.updateSingleton) {
             this.bDataBase.setValue(this.updateSingleton = false);
             if (updateTransactionData()) {
-                this.settingsController.logger.warning("Update Data successed");
                 int localBlockCount = this.transactionController.getLocalBlockCount();
                 int blockCount = Integer.parseInt(this.transactionController.getBlockCount());
                 this.strCurrentBlockLocally.set(Integer.toString(localBlockCount));

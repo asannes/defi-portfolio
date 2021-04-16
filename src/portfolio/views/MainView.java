@@ -186,7 +186,7 @@ public class MainView implements Initializable {
             fiatColumn.setVisible(false);
             balanceFiatColumn.setVisible(true);
         }
-        if (tabPane.getSelectionModel().getSelectedItem().getId().equals(this.mainViewController.settingsController.translationList.getValue().get("Overview"))) {
+        if (tabPane.getSelectionModel().getSelectedItem().getId().equals("Overview")) {
             crypto1Column.setText(this.mainViewController.settingsController.translationList.getValue().get("Rewards").toString());
             crypto1FiatColumn.setText(this.mainViewController.settingsController.translationList.getValue().get("Rewards") + " (" + mainViewController.settingsController.selectedFiatCurrency.getValue() + ")");
             crypto2Column.setText(this.mainViewController.settingsController.translationList.getValue().get("Commissions") + " DFI");
@@ -203,7 +203,7 @@ public class MainView implements Initializable {
             Commission2OverviewFiatColumn.setVisible(true);
             fiatColumn.setVisible(true);
         }
-        if (tabPane.getSelectionModel().getSelectedItem().getId().equals(this.mainViewController.settingsController.translationList.getValue().get("Rewards"))) {
+        if (tabPane.getSelectionModel().getSelectedItem().getId().equals("Rewards")) {
             crypto1Column.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1]);
             crypto1FiatColumn.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1] + " (" + mainViewController.settingsController.selectedFiatCurrency.getValue() + ")");
             crypto1Column.setVisible(true);
@@ -215,7 +215,7 @@ public class MainView implements Initializable {
             Commission2OverviewFiatColumn.setVisible(false);
             fiatColumn.setVisible(false);
         }
-        if (tabPane.getSelectionModel().getSelectedItem().getId().equals(this.mainViewController.settingsController.translationList.getValue().get("Commissions"))) {
+        if (tabPane.getSelectionModel().getSelectedItem().getId().equals("Commissions")) {
             crypto1Column.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1]);
             crypto1FiatColumn.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[1] + " (" + mainViewController.settingsController.selectedFiatCurrency.getValue() + ")");
             crypto2Column.setText(mainViewController.settingsController.selectedCoin.getValue().split("-")[0]);
@@ -1238,8 +1238,8 @@ public class MainView implements Initializable {
         this.EndDateOver.setText(this.mainViewController.settingsController.translationList.getValue().get("EndDate").toString());
         this.btnAnalyse.setText(this.mainViewController.settingsController.translationList.getValue().get("AnalyseData").toString());
         this.btnUpdateDatabase.setText(this.mainViewController.settingsController.translationList.getValue().get("UpdateData").toString());
+        this.btnHelp.setText(this.mainViewController.settingsController.translationList.getValue().get("Help").toString());
         if (this.cmbIntervall.getItems().size() > 0) {
-
             this.cmbIntervallCom.getItems().set(0, this.mainViewController.settingsController.translationList.getValue().get("Daily").toString());
             this.cmbIntervallCom.getItems().set(1, this.mainViewController.settingsController.translationList.getValue().get("Weekly").toString());
             this.cmbIntervallCom.getItems().set(2, this.mainViewController.settingsController.translationList.getValue().get("Monthly").toString());
