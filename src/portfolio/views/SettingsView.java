@@ -11,6 +11,8 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ResourceBundle;
@@ -26,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import portfolio.controllers.TransactionController;
+import sun.security.krb5.internal.crypto.Des;
 
 public class SettingsView implements Initializable {
     public Button btnSaveAndApply;
@@ -202,17 +205,39 @@ public class SettingsView implements Initializable {
         TransactionController.getInstance().stopServer();
     }
     public void btnOpenProjectFolderPressed(){
-        try {
-            Desktop.getDesktop().open(new File(SettingsController.getInstance().DEFI_PORTFOLIO_HOME));
+
+        if (SettingsController.getInstance().getPlatform().equals("linux")) {
+            // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
+            File file = new File(SettingsController.getInstance().DEFI_PORTFOLIO_HOME);
+            try {
+                Runtime.getRuntime().exec(new String[]{"xdg-open", file.getAbsolutePath()});
+            } catch (IOException e) {
+                SettingsController.getInstance().logger.warning(e.toString());
+            }
+        } else {
+            try {
+                Desktop.getDesktop().open(new File(SettingsController.getInstance().DEFI_PORTFOLIO_HOME));
         } catch (IOException e) {
-            e.printStackTrace();
+            SettingsController.getInstance().logger.warning(e.toString());
+        }
         }
     }
     public void btnOpenInstallationFolderPressed(){
-        try {
-            Desktop.getDesktop().open(new File( System.getProperty("user.dir")));
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if (SettingsController.getInstance().getPlatform().equals("linux")) {
+            // Workaround for Linux because "Desktop.getDesktop().browse()" doesn't work on some Linux implementations
+            File file = new File(System.getProperty("user.dir"));
+            try {
+                Runtime.getRuntime().exec(new String[]{"xdg-open", file.getAbsolutePath()});
+            } catch (IOException e) {
+                SettingsController.getInstance().logger.warning(e.toString());
+            }
+        } else {
+            try {
+                Desktop.getDesktop().open(new File(System.getProperty("user.dir")));
+            } catch (IOException e) {
+                SettingsController.getInstance().logger.warning(e.toString());
+            }
         }
     }
 }
