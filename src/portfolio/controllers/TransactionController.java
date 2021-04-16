@@ -15,6 +15,8 @@ import portfolio.models.AddressModel;
 import portfolio.models.BalanceModel;
 import portfolio.models.PortfolioModel;
 import portfolio.models.TransactionModel;
+import portfolio.views.MainView;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -32,6 +34,7 @@ import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class TransactionController {
 
@@ -622,6 +625,7 @@ public class TransactionController {
             }
         }
         int i = 1;
+
         if (updateTransactionList.size() > 0) {
             try {
                 PrintWriter writer = new PrintWriter(new FileWriter(this.strTransactionData, true));
@@ -672,7 +676,7 @@ public class TransactionController {
                 this.settingsController.logger.warning("Exception occured: " + e.toString());
             }
         }else{
-            this.showNoDataWindow();
+            MainView.getInstance().showNoDataWindow();
         }
         if (!this.settingsController.getPlatform().equals("mac")) this.frameUpdate.dispose();
         stopServer();
@@ -916,7 +920,10 @@ public class TransactionController {
     public void showNoDataWindow(){
         Parent root = null;
         try {
+
+            SettingsController.getInstance().logger.warning("before No dataview");
             root = FXMLLoader.load(getClass().getResource("../views/NoDataView.fxml"));
+            SettingsController.getInstance().logger.warning("after No dataview");
         } catch (IOException e) {
             e.printStackTrace();
         }
