@@ -40,6 +40,7 @@ public class CheckConnection extends TimerTask {
                                 int currentBlockCount = Integer.parseInt(this.mainViewController.transactionController.getBlockCountRpc());
                                 int maxBlockCount = Integer.parseInt(this.mainViewController.transactionController.getBlockCount());
                                 double progress = Math.floor(((double)currentBlockCount*10000.0/(double)maxBlockCount))/100.0;
+                                if(currentBlockCount<maxBlockCount)currentBlockCount=maxBlockCount;
                                 if(SettingsController.getInstance().getPlatform().equals("mac")){
                                     try {
                                         FileWriter myWriter = new FileWriter(System.getProperty("user.dir") + "/PortfolioData/"+"update.portfolio");
@@ -50,7 +51,18 @@ public class CheckConnection extends TimerTask {
                                 }else{
                                     TransactionController.getInstance().jl.setText("<html><body>"+SettingsController.getInstance().translationList.getValue().get("SyncData").toString() + progress+ "% <br>("+currentBlockCount+"/"+maxBlockCount+")</body></html>");
                                 }
+
                                 this.mainViewController.settingsController.selectedLaunchSync = currentBlockCount<maxBlockCount;
+
+                                if(!this.mainViewController.settingsController.selectedLaunchSync){
+                                    SettingsController.getInstance().runCheckTimer = false;
+                                    SettingsController.getInstance().errorBouncer = 0;
+                                    this.mainViewController.btnUpdateDatabasePressed();
+                                    this.mainViewController.plotUpdate(this.mainViewController.mainView.tabPane.getSelectionModel().getSelectedItem().getId());
+                                    File file = new File(System.getProperty("user.dir") + "/PortfolioData/" + "update.portfolio");
+                                    if (file.exists()) file.delete();
+                                }
+
                             }
                         }
                     }
