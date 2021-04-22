@@ -28,7 +28,7 @@ public class ExportService {
         File exportFile = new File(exportPath);
         this.mainViewController.settingsController.lastExportPath = exportFile.getParent();
         this.mainViewController.settingsController.saveSettings();
-        if(exportFile.exists()) exportFile.delete();
+        if (exportFile.exists()) exportFile.delete();
 
         PrintWriter writer = null;
         try {
@@ -96,44 +96,44 @@ public class ExportService {
         for (TransactionModel transaction : transactions) {
             String newDate = this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(transaction.blockTimeProperty.getValue());
 
-            if(transaction.typeProperty.getValue().equals("Commission") || transaction.typeProperty.getValue().equals("Rewards")){
+            if (transaction.typeProperty.getValue().equals("Commission") || transaction.typeProperty.getValue().equals("Rewards")) {
 
-            if ((oldDate.equals("") || oldDate.equals(newDate)) ) {
-                String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
-                if (!exportList.containsKey(key)) {
-                     exportList.put(key,new TransactionModel(transaction.blockTimeProperty.getValue(),transaction.ownerProperty.getValue(),transaction.typeProperty.getValue(),transaction.amountProperty.getValue(),transaction.blockHashProperty.getValue(),transaction.blockHeightProperty.getValue(),transaction.poolIDProperty.getValue(),transaction.txIDProperty.getValue(),this.mainViewController.transactionController));
+                if ((oldDate.equals("") || oldDate.equals(newDate))) {
+                    String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                    if (!exportList.containsKey(key)) {
+                        exportList.put(key, new TransactionModel(transaction.blockTimeProperty.getValue(), transaction.ownerProperty.getValue(), transaction.typeProperty.getValue(), transaction.amountProperty.getValue(), transaction.blockHashProperty.getValue(), transaction.blockHeightProperty.getValue(), transaction.poolIDProperty.getValue(), transaction.txIDProperty.getValue(), this.mainViewController.transactionController));
+                    } else {
+                        exportList.get(key).cryptoValueProperty.set(exportList.get(key).cryptoValueProperty.getValue() + transaction.cryptoValueProperty.getValue());
+                        exportList.get(key).fiatValueProperty.set(exportList.get(key).fiatValueProperty.getValue() + transaction.fiatValueProperty.getValue());
+                    }
                 } else {
-                    exportList.get(key).cryptoValueProperty.set(exportList.get(key).cryptoValueProperty.getValue() + transaction.cryptoValueProperty.getValue());
-                    exportList.get(key).fiatValueProperty.set(exportList.get(key).fiatValueProperty.getValue() + transaction.fiatValueProperty.getValue());
+                    for (HashMap.Entry<String, TransactionModel> entry : exportList.entrySet()) {
+
+                        sb = new StringBuilder();
+                        sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().blockTimeProperty.getValue())).append(exportSplitter);
+                        sb.append(entry.getValue().typeProperty.getValue()).append(exportSplitter);
+                        sb.append(String.format(localeDecimal, "%.8f", entry.getValue().cryptoValueProperty.getValue())).append(exportSplitter);
+                        sb.append(entry.getValue().cryptoCurrencyProperty.getValue()).append(exportSplitter);
+                        sb.append(String.format(localeDecimal, "%.8f", entry.getValue().fiatValueProperty.getValue())).append(exportSplitter);
+                        sb.append(entry.getValue().fiatCurrencyProperty.getValue()).append(exportSplitter);
+                        sb.append(entry.getValue().poolIDProperty.getValue()).append(exportSplitter);
+                        sb.append(entry.getValue().blockHeightProperty.getValue()).append(exportSplitter);
+                        sb.append(entry.getValue().blockHashProperty.getValue()).append(exportSplitter);
+                        sb.append(entry.getValue().ownerProperty.getValue()).append(exportSplitter);
+                        sb.append(entry.getValue().txIDProperty.getValue());
+                        sb.append("\n");
+                        writer.write(sb.toString());
+                        sb = null;
+
+                    }
+                    exportList = new TreeMap<>();
+
+                    String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                    exportList.put(key, new TransactionModel(transaction.blockTimeProperty.getValue(), transaction.ownerProperty.getValue(), transaction.typeProperty.getValue(), transaction.amountProperty.getValue(), transaction.blockHashProperty.getValue(), transaction.blockHeightProperty.getValue(), transaction.poolIDProperty.getValue(), transaction.txIDProperty.getValue(), this.mainViewController.transactionController));
+
                 }
+
             } else {
-                for (HashMap.Entry<String, TransactionModel> entry : exportList.entrySet()) {
-
-                sb = new StringBuilder();
-                sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().blockTimeProperty.getValue())).append(exportSplitter);
-                sb.append(entry.getValue().typeProperty.getValue()).append(exportSplitter);
-                sb.append(String.format(localeDecimal, "%.8f", entry.getValue().cryptoValueProperty.getValue())).append(exportSplitter);
-                sb.append(entry.getValue().cryptoCurrencyProperty.getValue()).append(exportSplitter);
-                sb.append(String.format(localeDecimal, "%.8f", entry.getValue().fiatValueProperty.getValue())).append(exportSplitter);
-                sb.append(entry.getValue().fiatCurrencyProperty.getValue()).append(exportSplitter);
-                sb.append(entry.getValue().poolIDProperty.getValue()).append(exportSplitter);
-                sb.append(entry.getValue().blockHeightProperty.getValue()).append(exportSplitter);
-                sb.append(entry.getValue().blockHashProperty.getValue()).append(exportSplitter);
-                sb.append(entry.getValue().ownerProperty.getValue()).append(exportSplitter);
-                sb.append(entry.getValue().txIDProperty.getValue());
-                sb.append("\n");
-                writer.write(sb.toString());
-                sb = null;
-
-                }
-                exportList = new TreeMap<>();
-
-                String key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
-                exportList.put(key,new TransactionModel(transaction.blockTimeProperty.getValue(),transaction.ownerProperty.getValue(),transaction.typeProperty.getValue(),transaction.amountProperty.getValue(),transaction.blockHashProperty.getValue(),transaction.blockHeightProperty.getValue(),transaction.poolIDProperty.getValue(),transaction.txIDProperty.getValue(),this.mainViewController.transactionController));
-
-            }
-
-            }else{
                 sb = new StringBuilder();
                 sb.append(this.mainViewController.transactionController.convertTimeStampToString(transaction.blockTimeProperty.getValue())).append(exportSplitter);
                 sb.append(transaction.typeProperty.getValue()).append(exportSplitter);
@@ -179,6 +179,176 @@ public class ExportService {
 
     }
 
+    public boolean exportTransactionToCointracking(List<TransactionModel> transactions, String exportPath, Locale localeDecimal, String exportSplitter, String filter) {
+        File exportFile = new File(exportPath);
+        this.mainViewController.settingsController.lastExportPath = exportFile.getParent();
+        this.mainViewController.settingsController.saveSettings();
+        if (exportFile.exists()) exportFile.delete();
+
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(new FileWriter(exportPath, true));
+        } catch (IOException e) {
+            SettingsController.getInstance().logger.warning("Exception occured: " + e.toString());
+        }
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Type,Buy Amount,Buy Currency,Sell Amount,Sell currency,Fee Amount,Fee Currency,Exchange,Trade Group,Comment,Date,Tx-ID,Buy Value in your Account Currency,Sell Value in your Account Currency");
+        sb.setLength(sb.length() - 1);
+        sb.append("\n");
+        writer.write(sb.toString());
+        TreeMap<String, TransactionModel> exportList = new TreeMap<>();
+        String oldDate = "";
+        for (TransactionModel transaction : transactions) {
+            String newDate = this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(transaction.blockTimeProperty.getValue());
+
+            if (transaction.typeProperty.getValue().equals("Commission") || transaction.typeProperty.getValue().equals("Rewards")) {
+
+                if ((oldDate.equals("") || oldDate.equals(newDate))) {
+                    String key = "";
+
+                    switch (filter) {
+                        case "POOLPAIR+ALL":
+                            key = this.mainViewController.transactionController.getPoolPairFromId(transaction.cryptoCurrencyProperty.getValue());
+                            break;
+                        case "POOLPAIR":
+                            key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue();
+                            break;
+                        case "ALL":
+                            key = transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                            break;
+                        case "DAY":
+                            key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                            break;
+                    }
+
+                    if (!exportList.containsKey(key)) {
+                        exportList.put(key, new TransactionModel(transaction.blockTimeProperty.getValue(), transaction.ownerProperty.getValue(), transaction.typeProperty.getValue(), transaction.amountProperty.getValue(), transaction.blockHashProperty.getValue(), transaction.blockHeightProperty.getValue(), transaction.poolIDProperty.getValue(), transaction.txIDProperty.getValue(), this.mainViewController.transactionController));
+                    } else {
+                        exportList.get(key).cryptoValueProperty.set(exportList.get(key).cryptoValueProperty.getValue() + transaction.cryptoValueProperty.getValue());
+                        exportList.get(key).fiatValueProperty.set(exportList.get(key).fiatValueProperty.getValue() + transaction.fiatValueProperty.getValue());
+                    }
+                } else {
+
+                    for (HashMap.Entry<String, TransactionModel> entry : exportList.entrySet()) {
+
+                        sb = new StringBuilder();
+
+                        sb.append(Type2CointrackingType(entry.getValue().typeProperty.getValue())).append(exportSplitter);
+
+                        if (!Type2CointrackingType(entry.getValue().typeProperty.getValue()).equals("Withdrawal")) {
+                            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().cryptoValueProperty.getValue())).append(exportSplitter);
+                            sb.append(entry.getValue().cryptoCurrencyProperty.getValue()).append(exportSplitter);
+                        }else
+                        {
+                            sb.append("").append(exportSplitter).append("").append(exportSplitter);
+                        }
+
+                        if (Type2CointrackingType(entry.getValue().typeProperty.getValue()).equals("Deposit") || Type2CointrackingType(entry.getValue().typeProperty.getValue()).equals("Interest Income")) {
+                            sb.append("").append(exportSplitter).append("").append(exportSplitter);
+                        }else{
+
+                        }
+                        sb.append(String.format(localeDecimal, "%.8f", entry.getValue().fiatValueProperty.getValue())).append(exportSplitter);
+                        sb.append(entry.getValue().fiatCurrencyProperty.getValue()).append(exportSplitter);
+                        sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().blockTimeProperty.getValue())).append(exportSplitter);
+                        sb.append(entry.getValue().txIDProperty.getValue());
+                        sb.append("\n");
+                        writer.write(sb.toString());
+                        sb = null;
+
+                    }
+                    exportList = new TreeMap<>();
+                    String key = "";
+
+                    switch (filter) {
+                        case "POOLPAIR+ALL":
+                            key = this.mainViewController.transactionController.getPoolPairFromId(transaction.cryptoCurrencyProperty.getValue());
+                            break;
+                        case "POOLPAIR":
+                            key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue();
+                            break;
+                        case "ALL":
+                            key = transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                            break;
+                        case "DAY":
+                            key = this.mainViewController.transactionController.getPoolPairFromId(transaction.poolIDProperty.getValue()) + transaction.cryptoCurrencyProperty.getValue() + transaction.typeProperty.getValue();
+                            break;
+                    }
+                    exportList.put(key, new TransactionModel(transaction.blockTimeProperty.getValue(), transaction.ownerProperty.getValue(), transaction.typeProperty.getValue(), transaction.amountProperty.getValue(), transaction.blockHashProperty.getValue(), transaction.blockHeightProperty.getValue(), transaction.poolIDProperty.getValue(), transaction.txIDProperty.getValue(), this.mainViewController.transactionController));
+
+                }
+
+            } else {
+
+                if (!(transaction.typeProperty.getValue().equals("UtxosToAccount") || transaction.typeProperty.getValue().equals("AccountToUtxos"))) {
+
+                    sb = new StringBuilder();
+                    sb.append(this.mainViewController.transactionController.convertTimeStampToString(transaction.blockTimeProperty.getValue())).append(exportSplitter);
+                    sb.append(transaction.typeProperty.getValue()).append(exportSplitter);
+                    sb.append(String.format(localeDecimal, "%.8f", transaction.cryptoValueProperty.getValue())).append(exportSplitter);
+                    sb.append(transaction.cryptoCurrencyProperty.getValue()).append(exportSplitter);
+                    sb.append(String.format(localeDecimal, "%.8f", transaction.fiatValueProperty.getValue())).append(exportSplitter);
+                    sb.append(transaction.fiatCurrencyProperty.getValue()).append(exportSplitter);
+                    sb.append(transaction.poolIDProperty.getValue()).append(exportSplitter);
+                    sb.append(transaction.blockHeightProperty.getValue()).append(exportSplitter);
+                    sb.append(transaction.blockHashProperty.getValue()).append(exportSplitter);
+                    sb.append(transaction.ownerProperty.getValue()).append(exportSplitter);
+                    sb.append(transaction.txIDProperty.getValue());
+                    sb.append("\n");
+                    writer.write(sb.toString());
+                    sb = null;
+
+                }
+            }
+
+            oldDate = newDate;
+        }
+
+        for (HashMap.Entry<String, TransactionModel> entry : exportList.entrySet()) {
+
+            sb = new StringBuilder();
+            sb.append(this.mainViewController.transactionController.convertTimeStampWithoutTimeToString(entry.getValue().blockTimeProperty.getValue())).append(exportSplitter);
+            sb.append(entry.getValue().typeProperty.getValue()).append(exportSplitter);
+            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().cryptoValueProperty.getValue())).append(exportSplitter);
+            sb.append(entry.getValue().cryptoCurrencyProperty.getValue()).append(exportSplitter);
+            sb.append(String.format(localeDecimal, "%.8f", entry.getValue().fiatValueProperty.getValue())).append(exportSplitter);
+            sb.append(entry.getValue().fiatCurrencyProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().poolIDProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().blockHeightProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().blockHashProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().ownerProperty.getValue()).append(exportSplitter);
+            sb.append(entry.getValue().txIDProperty.getValue());
+            sb.append("\n");
+            writer.write(sb.toString());
+            sb = null;
+
+        }
+        writer.close();
+        exportList.clear();
+        return true;
+
+    }
+
+    public String Type2CointrackingType(String type) {
+        switch (type) {
+            case "Rewards":
+            case "Commission":
+                return "Interest Income";
+            case "PoolSwap":
+            case "AddPoolLiquidity":
+            case "RemovePoolLiquidity":
+                return "Trade";
+            case "receive":
+                return "Deposit";
+            case "sent":
+                return "Withdrawal";
+            default:
+                return "Interest Income";
+        }
+    }
+
+
     public boolean exportPoolPairToExcel(List<PoolPairModel> poolPairModelList, String exportPath, String source, MainView mainView) {
         try {
             PrintWriter writer = new PrintWriter(exportPath);
@@ -199,7 +369,7 @@ public class ExportService {
                     }
                     break;
                 case "Overview":
-                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId() + "," + mainView.plotTable.getColumns().get(4).getId()+ "," + mainView.plotTable.getColumns().get(5).getId()+ "," + mainView.plotTable.getColumns().get(6).getId()+ "," + mainView.plotTable.getColumns().get(7).getId()+ "," + mainView.plotTable.getColumns().get(8).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId() + "," + mainView.plotTable.getColumns().get(4).getId() + "," + mainView.plotTable.getColumns().get(5).getId() + "," + mainView.plotTable.getColumns().get(6).getId() + "," + mainView.plotTable.getColumns().get(7).getId() + "," + mainView.plotTable.getColumns().get(8).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
                     for (PoolPairModel poolPairModel : poolPairModelList) {
                         sb.append(poolPairModel.getBlockTime().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
                         sb.append(poolPairModel.getPoolPair().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
@@ -214,7 +384,7 @@ public class ExportService {
                     }
                     break;
                 case "Commissions":
-                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId() + "," + mainView.plotTable.getColumns().get(4).getId()+ "," + mainView.plotTable.getColumns().get(5).getId()+ "," + mainView.plotTable.getColumns().get(8).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
+                    sb.append((mainView.plotTable.getColumns().get(0).getId() + "," + mainView.plotTable.getColumns().get(1).getId() + "," + mainView.plotTable.getColumns().get(2).getId() + "," + mainView.plotTable.getColumns().get(3).getId() + "," + mainView.plotTable.getColumns().get(4).getId() + "," + mainView.plotTable.getColumns().get(5).getId() + "," + mainView.plotTable.getColumns().get(8).getId()).replace(",", this.mainViewController.settingsController.selectedSeperator.getValue())).append("\n");
                     for (PoolPairModel poolPairModel : poolPairModelList) {
                         sb.append(poolPairModel.getBlockTime().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());
                         sb.append(poolPairModel.getPoolPair().getValue()).append(this.mainViewController.settingsController.selectedSeperator.getValue());

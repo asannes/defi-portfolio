@@ -14,6 +14,7 @@ import javafx.scene.chart.StackedAreaChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -146,6 +147,13 @@ public class MainView implements Initializable {
     public MenuItem menuItemExportSelected = new MenuItem("Export selected to CSV");
     public MenuItem menuItemExportAllSelected = new MenuItem("Export all to CSV");
     public MenuItem menuItemExportAllDailySelected = new MenuItem("Export all to CSV (Daily cumulated)");
+
+    public MenuItem menuItemExportPoolPairAllSelected = new MenuItem("Cumulated Poolpair, Rewards/Commissions and Daily");
+    public MenuItem menuItemExportPoolPairSelected = new MenuItem("Cumulated Poolpair and Daily");
+    public MenuItem menuItemExportAllRewardsSelected = new MenuItem("Cumulated Rewards/Commissions and Daily");
+    public MenuItem menuItemExportDailySelected = new MenuItem("Cumulated Daily");
+
+
     public MenuItem menuItemCopySelectedPlot = new MenuItem("Copy");
     public MenuItem menuItemCopyHeaderSelectedPlot = new MenuItem("Copy with header");
     public MenuItem menuItemExportSelectedPlot = new MenuItem("Export selected to CSV");
@@ -1012,27 +1020,11 @@ public class MainView implements Initializable {
                     if (mainViewController.settingsController.selectedDecimal.getValue().equals(".")) {
                         localeDecimal = Locale.US;
                     }
-                    setText(String.format(localeDecimal, "%.8f", cryptoValue));
+                    setText(String.format(localeDecimal, "%,.2f", cryptoValue));
                 }
             }
         });
 
-//        Commission1OverviewColumn.setCellFactory(tc -> new TableCell<PoolPairModel, Double>() {
-//            @Override
-//            protected void updateItem(Double cryptoValue, boolean empty) {
-//                super.updateItem(cryptoValue, empty);
-//                if (empty) {
-//                    setText(null);
-//                } else {
-//
-//                    Locale localeDecimal = Locale.GERMAN;
-//                    if (mainViewController.settingsController.selectedDecimal.getValue().equals(".")) {
-//                        localeDecimal = Locale.US;
-//                    }
-//                    setText(String.format(localeDecimal, "%.8f", cryptoValue));
-//                }
-//            }
-//        });
         Commission2OverviewColumn.setCellFactory(tc -> new TableCell<PoolPairModel, Double>() {
             @Override
             protected void updateItem(Double cryptoValue, boolean empty) {
@@ -1049,22 +1041,7 @@ public class MainView implements Initializable {
                 }
             }
         });
-//        Commission1OverviewFiatColumn.setCellFactory(tc -> new TableCell<PoolPairModel, Double>() {
-//            @Override
-//            protected void updateItem(Double cryptoValue, boolean empty) {
-//                super.updateItem(cryptoValue, empty);
-//                if (empty) {
-//                    setText(null);
-//                } else {
-//
-//                    Locale localeDecimal = Locale.GERMAN;
-//                    if (mainViewController.settingsController.selectedDecimal.getValue().equals(".")) {
-//                        localeDecimal = Locale.US;
-//                    }
-//                    setText(String.format(localeDecimal, "%.8f", cryptoValue));
-//                }
-//            }
-//        });
+
         Commission2OverviewFiatColumn.setCellFactory(tc -> new TableCell<PoolPairModel, Double>() {
             @Override
             protected void updateItem(Double cryptoValue, boolean empty) {
@@ -1077,7 +1054,7 @@ public class MainView implements Initializable {
                     if (mainViewController.settingsController.selectedDecimal.getValue().equals(".")) {
                         localeDecimal = Locale.US;
                     }
-                    setText(String.format(localeDecimal, "%.8f", cryptoValue));
+                    setText(String.format(localeDecimal, "%,.2f", cryptoValue));
                 }
             }
         });
@@ -1111,7 +1088,7 @@ public class MainView implements Initializable {
                     if (mainViewController.settingsController.selectedDecimal.getValue().equals(".")) {
                         localeDecimal = Locale.US;
                     }
-                    setText(String.format(localeDecimal, "%.8f", cryptoValue));
+                    setText(String.format(localeDecimal, "%,.2f", cryptoValue));
                 }
             }
         });
@@ -1158,9 +1135,14 @@ public class MainView implements Initializable {
         //Init context menu of raw data table
         menuItemCopySelected.setOnAction(event -> mainViewController.copySelectedRawDataToClipboard(rawDataTable.selectionModelProperty().get().getSelectedItems(), false));
         menuItemCopyHeaderSelected.setOnAction(event -> mainViewController.copySelectedRawDataToClipboard(rawDataTable.selectionModelProperty().get().getSelectedItems(), true));
-        menuItemExportSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.selectionModelProperty().get().getSelectedItems(), false));
-        menuItemExportAllSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), false));
-        menuItemExportAllDailySelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), true));
+        menuItemExportSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.selectionModelProperty().get().getSelectedItems(), ""));
+        menuItemExportAllSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), ""));
+        menuItemExportAllDailySelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), "DAILY"));
+          menuItemExportPoolPairAllSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), "POOLPAIR+ALL"));
+          menuItemExportPoolPairSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), "POOLPAIR"));
+          menuItemExportAllRewardsSelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), "ALL"));
+          menuItemExportDailySelected.setOnAction(event -> mainViewController.exportTransactionToExcel(rawDataTable.getItems(), "DAY"));
+
 
         contextMenuRawData.getItems().add(menuItemCopySelected);
         contextMenuRawData.getItems().add(menuItemCopyHeaderSelected);
@@ -1168,6 +1150,13 @@ public class MainView implements Initializable {
         contextMenuRawData.getItems().add(menuItemExportAllSelected);
         contextMenuRawData.getItems().add(menuItemExportAllDailySelected);
 
+        Menu cointracking = new Menu("Export to Cointracking");
+        cointracking.getItems().add(menuItemExportPoolPairAllSelected);
+        cointracking.getItems().add(menuItemExportPoolPairSelected);
+        cointracking.getItems().add(menuItemExportAllRewardsSelected);
+        cointracking.getItems().add(menuItemExportDailySelected);
+
+        contextMenuRawData.getItems().add(cointracking);
 
         this.rawDataTable.contextMenuProperty().set(contextMenuRawData);
     }

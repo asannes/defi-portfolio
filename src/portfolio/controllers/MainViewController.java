@@ -326,14 +326,14 @@ public class MainViewController {
 
             if (balanceModel.getToken2NameValue().equals("-")) {
                 pieChartData.add(new PieChart.Data(balanceModel.getToken1NameValue(), balanceModel.getFiat1Value()));
-                this.poolPairModelList.add(new PoolPairModel(balanceModel.getToken1NameValue(), 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.8f", balanceModel.getCrypto1Value()), 0.0, 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.2f", balanceModel.getFiat1Value())));
+                this.poolPairModelList.add(new PoolPairModel(balanceModel.getToken1NameValue(), 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.8f", balanceModel.getCrypto1Value()), 0.0, 0.0, 0.0, 0.0, String.format(localeDecimal, "%,.2f", balanceModel.getFiat1Value())));
                 calculatedPortfolio += balanceModel.getFiat1Value() + balanceModel.getFiat2Value();
 
             } else {
                 pieChartData2.add(new PieChart.Data(balanceModel.getToken1NameValue() + "-" + balanceModel.getToken2NameValue(), balanceModel.getFiat1Value() + balanceModel.getFiat2Value()));
                 this.poolPairModelList.add(new PoolPairModel(balanceModel.getToken1NameValue() + "-" + balanceModel.getToken2NameValue(), 0.0, 0.0, 0.0,
                         String.format(localeDecimal, "%1.8f", balanceModel.getShareValue()) + " (" + String.format(localeDecimal, "%1.8f", balanceModel.getCrypto1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal, "%1.8f", balanceModel.getCrypto2Value()) + balanceModel.getToken2NameValue() + ")",
-                        0.0, 0.0, 0.0, 0.0, String.format(localeDecimal, "%1.2f", balanceModel.getFiat1Value() + balanceModel.getFiat1Value()) + " (" + String.format(localeDecimal, "%1.2f", balanceModel.getFiat1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal, "%1.2f", balanceModel.getFiat2Value()) + balanceModel.getToken2NameValue() + ")"));
+                        0.0, 0.0, 0.0, 0.0, String.format(localeDecimal, "%,.2f", balanceModel.getFiat1Value() + balanceModel.getFiat1Value()) + " (" + String.format(localeDecimal, "%,.2f", balanceModel.getFiat1Value()) + " " + balanceModel.getToken1NameValue() + " + " + String.format(localeDecimal, "%,.2f", balanceModel.getFiat2Value()) + balanceModel.getToken2NameValue() + ")"));
                 calculatedPortfolio2 += balanceModel.getFiat1Value() + balanceModel.getFiat2Value();
             }
 
@@ -363,12 +363,12 @@ public class MainViewController {
         }else if(SettingsController.getInstance().selectedFiatCurrency.getValue().equals("CHF")){
             currency = "CHF";
         }
-        this.settingsController.tokenYield.set(this.settingsController.translationList.getValue().get("TotalYield")+":\n"+String.format(localeDecimal, "%1.2f", totalYield)+currency);
-        this.settingsController.tokenYieldRewards.set(this.settingsController.translationList.getValue().get("TotalYieldRewards")+":\n"+String.format(localeDecimal, "%1.2f", totalYieldRewards)+currency);
-        this.settingsController.tokenYieldCommissions.set(this.settingsController.translationList.getValue().get("TotalYieldCommissions")+":\n"+String.format(localeDecimal, "%1.2f", totalYieldCommissions)+currency);
-        this.settingsController.tokenAmount.set(this.settingsController.translationList.getValue().get("TotalAmount")+":\n"+String.format(localeDecimal, "%1.2f", calculatedPortfolio+calculatedPortfolio2)+currency);
-        this.settingsController.tokenBalance.set("Token:\n" + String.format(localeDecimal, "%1.2f", calculatedPortfolio)+currency);
-        this.settingsController.tokenBalanceLM.set("LM Token:\n" + String.format(localeDecimal, "%1.2f", calculatedPortfolio2)+currency);
+        this.settingsController.tokenYield.set(this.settingsController.translationList.getValue().get("TotalYield")+":\n"+String.format(localeDecimal, "%,.2f", totalYield)+currency);
+        this.settingsController.tokenYieldRewards.set(this.settingsController.translationList.getValue().get("TotalYieldRewards")+":\n"+String.format(localeDecimal, "%,.2f", totalYieldRewards)+currency);
+        this.settingsController.tokenYieldCommissions.set(this.settingsController.translationList.getValue().get("TotalYieldCommissions")+":\n"+String.format(localeDecimal, "%,.2f", totalYieldCommissions)+currency);
+        this.settingsController.tokenAmount.set(this.settingsController.translationList.getValue().get("TotalAmount")+":\n"+String.format(localeDecimal, "%,.2f", calculatedPortfolio+calculatedPortfolio2)+currency);
+        this.settingsController.tokenBalance.set("Token:\n" + String.format(localeDecimal, "%,.2f", calculatedPortfolio)+currency);
+        this.settingsController.tokenBalanceLM.set("LM Token:\n" + String.format(localeDecimal, "%,.2f", calculatedPortfolio2)+currency);
         this.mainView.plotPortfolio1.setData(pieChartData);
         this.mainView.plotPortfolio11.setData(pieChartData2);
 
@@ -704,7 +704,7 @@ public class MainViewController {
         return this.poolPairList;
     }
 
-    public void exportTransactionToExcel(List<TransactionModel> list, boolean daily) {
+    public void exportTransactionToExcel(List<TransactionModel> list, String filter) {
 
         Locale localeDecimal = Locale.GERMAN;
         if (settingsController.selectedDecimal.getValue().equals(".")) {
@@ -725,10 +725,12 @@ public class MainViewController {
 
         if (selectedFile != null) {
             boolean success;
-            if (daily) {
+            if (filter.equals("DAILY")) {
                 success = this.expService.exportTransactionToExcelDaily(list, selectedFile.getPath(), localeDecimal, this.settingsController.selectedSeperator.getValue());
-            } else {
+            } else if(filter.equals("")) {
                 success = this.expService.exportTransactionToExcel(list, selectedFile.getPath(), localeDecimal, this.settingsController.selectedSeperator.getValue());
+            }else{
+                success = this.expService.exportTransactionToCointracking(list, selectedFile.getPath(), localeDecimal, this.settingsController.selectedSeperator.getValue(),filter);
             }
 
             if (success) {
